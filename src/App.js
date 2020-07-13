@@ -1,0 +1,21 @@
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import SelectDevice from "./pages/SelectDevice";
+import SelectCustomer from "./pages/SelectCustomer";
+import Home from "./pages/Home";
+import Repair from "./pages/Repair";
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/newrepair/customer" component={SelectCustomer} />
+        <Route exact path="/newrepair/device" component={SelectDevice} />
+        <Route exact path="/repair" component={Repair} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default App;
