@@ -1,0 +1,21 @@
+{
+  "1": { "id": "1", "model": "OnePlus 6", "manufacturer": "oneplus" },
+  "2": { "id": "2", "model": "OnePlus 3T", "manufacturer": "oneplus" },
+  "3": { "id": "3", "model": "iPhone 7", "manufacturer": "apple" },
+  "4": { "id": "4", "model": "iPhone 6", "manufacturer": "apple" },
+  "5": { "id": "5", "model": "iPhone X", "manufacturer": "apple" },
+  "6": { "id": "6", "model": "iPhone 6 Plus", "manufacturer": "apple" },
+  "7": { "id": "7", "model": "Galaxy S9", "manufacturer": "samsung" },
+  "8": { "id": "8", "model": "Galaxy Note 10", "manufacturer": "samsung" },
+  "9": { "id": "9", "model": "Galaxy S7", "manufacturer": "samsung" },
+  "10": { "id": "10", "model": "Galaxy J3 Prime", "manufacturer": "samsung" },
+  "11": { "id": "11", "model": "Galaxy Note 10+", "manufacturer": "samsung" },
+  "12": { "id": "12", "model": "Moto G5", "manufacturer": "motorola" },
+  "13": { "id": "13", "model": "G7", "manufacturer": "lg" },
+  "14": { "id": "14", "model": "V60", "manufacturer": "lg" },
+  "15": { "id": "15", "model": "Stylo 4", "manufacturer": "lg" },
+  "16": { "id": "16", "model": "Moto G6", "manufacturer": "motorola" },
+  "17": { "id": "17", "model": "Moto X", "manufacturer": "motorola" },
+  "18": { "id": "18", "model": "Moto Z4", "manufacturer": "motorola" },
+  "19": { "id": "19", "model": "Moto Edge+", "manufacturer": "motorola" }
+}
