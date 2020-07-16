@@ -2,19 +2,13 @@ import React, { useEffect, useState } from "react";
 import deviceList from "../deviceList.json";
 import Continue from "../components/Continue";
 
-export default function SelectDevice() {
-  const [device, setDevice] = useState({
-    manufacturer: "",
-    model: "",
-    id: "",
-  });
-
-  useEffect(() => {
-    console.log(device);
-  }, [device]);
+export default function SelectPart({ match }) {
+  const [manufacturer, setManufacturer] = useState("");
+  const [modelId, setModelId] = useState("");
+  const [partId, setPartId] = useState("");
 
   let filteredDevices = Object.values(deviceList)
-    .filter((myDevice) => myDevice.manufacturer === device.manufacturer)
+    .filter((myDevice) => myDevice.manufacturer === manufacturer)
     .sort()
     .map((aDevice) => (
       <option
@@ -26,9 +20,17 @@ export default function SelectDevice() {
       </option>
     ));
 
+  let filteredDeviceParts = ["part 1", "part 2", "part 3", "part 4"].map(
+    (part) => (
+      <option key={part} value={part}>
+        {`device ID ${modelId}, ${part}`}
+      </option>
+    )
+  );
+
   return (
     <div className="container">
-      <h4>Select a device</h4>
+      <h4>Add a part to repair #{match.params.id}</h4>
 
       <div className="row">
         <div className="six columns">
@@ -37,9 +39,11 @@ export default function SelectDevice() {
             className="u-full-width"
             id="manufacturer"
             onChange={(e) => {
-              setDevice({ manufacturer: e.target.value, model: "", id: "" });
+              setManufacturer(e.target.value);
+              setModelId("");
+              setPartId("");
             }}
-            value={device.manufacturer}
+            value={manufacturer}
           >
             <option value="" disabled hidden>
               Choose a manufacturer
@@ -58,16 +62,11 @@ export default function SelectDevice() {
           <select
             className="u-full-width"
             id="model"
-            value={device.id}
-            {...(device.manufacturer === "" && { disabled: true })}
+            value={modelId}
+            {...(manufacturer === "" && { disabled: true })}
             onChange={(e) => {
-              setDevice({
-                ...device,
-                id: e.target.value,
-                model: Object.values(deviceList).find(
-                  (aDevice) => aDevice.id === e.target.value
-                ).model,
-              });
+              setModelId(e.target.value);
+              setPartId("");
             }}
           >
             <option value="" disabled hidden>
@@ -77,13 +76,32 @@ export default function SelectDevice() {
           </select>
         </div>
       </div>
+      <div className="row">
+        <div className="six columns">
+          <label htmlFor="model">Part</label>
+          <select
+            className="u-full-width"
+            id="model"
+            value={partId}
+            {...(modelId === "" && { disabled: true })}
+            onChange={(e) => {
+              setPartId(e.target.value);
+            }}
+          >
+            <option value="" disabled hidden>
+              Choose a part
+            </option>
+            {filteredDeviceParts}
+          </select>
+        </div>
+      </div>
 
       <Continue
-        nextLink={`/repair/${device.id}`}
+        nextLink={`/repair/${match.params.id}`}
         nextText="Continue"
         backText="back"
-        backLink="/newrepair/customer"
-        allowNext={device.id ? true : false}
+        backLink={`/repair/${match.params.id}`}
+        allowNext={partId ? true : false}
       />
     </div>
   );
