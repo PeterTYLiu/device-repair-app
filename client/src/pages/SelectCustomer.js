@@ -18,7 +18,7 @@ export default function SelectCustomer() {
   let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
   return (
-    <React.Fragment>
+    <div className="container">
       <div className="row">
         <div className="six columns">
           <h4>Select existing customer</h4>
@@ -87,6 +87,6 @@ export default function SelectCustomer() {
           (newCustomer.name && newCustomer.email.match(emailRegex))
         }
       />
-    </React.Fragment>
+    </div>
   );
 }
