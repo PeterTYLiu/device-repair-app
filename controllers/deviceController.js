@@ -15,7 +15,7 @@ module.exports = {
   // get shop details
   find: async function (req, res) {
     try {
-      const existingDevice = await Device.findByPk(req.params.id);
+      const existingDevice = await Device.findByPk(req.user.id);
       if (existingDevice === null) {
         res.sendStatus(404);
       } else {

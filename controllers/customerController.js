@@ -14,9 +14,9 @@ module.exports = {
   },
 
   // get shop details
-  findCustomer: async function (req, res) {
+  find: async function (req, res) {
     try {
-      const existingCustomer = await Customer.findByPk(req.params.id, {
+      const existingCustomer = await Customer.findByPk(req.user.id, {
         include: [{ model: Repair, as: 'repairs', reuired: false }],
       });
       if (existingCustomer === null) {

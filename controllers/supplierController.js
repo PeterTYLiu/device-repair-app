@@ -10,7 +10,7 @@ module.exports = {
       // pick out the shop-id from the session and then create the shop suppliers relationship
       await ShopSuppliers.create({
         SupplierId: newSupplier.id,
-        ShopId: req.body.UserId,
+        ShopId: req.user.id,
       });
       res.status(201).json(newSupplier);
     } catch (error) {
@@ -21,7 +21,7 @@ module.exports = {
   // get shop details
   find: async function (req, res) {
     try {
-      const existingDevice = await Device.findByPk(req.params.id);
+      const existingDevice = await Device.findByPk(req.user.id);
       if (existingDevice === null) {
         res.sendStatus(404);
       } else {

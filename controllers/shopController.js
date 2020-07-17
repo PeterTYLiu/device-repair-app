@@ -15,8 +15,9 @@ module.exports = Shop = {
   // get shop details
   findShop: async function (req, res) {
     try {
-      const existingShop = await db.Shop.findByPk(req.params.id, {
-        include: [{ model: db.Repair, as: 'repairs', reuired: false }],
+      const shopId = req.user.id;
+      const existingShop = await db.Shop.findByPk(shopId, {
+        include: [{ model: db.Repair, as: 'repairs' }],
       });
       if (existingShop === null) {
         res.sendStatus(404);
