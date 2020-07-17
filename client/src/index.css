@@ -1,0 +1,167 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root > .container {
+  margin-top: 4rem;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+fieldset,
+input,
+select,
+textarea {
+  margin-bottom: 3rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1 {
+  margin-bottom: 4rem;
+}
+.button {
+  user-select: none;
+}
+.button.button-disabled {
+  background-color: #eee;
+  color: #ccc;
+  border-color: #eee;
+  pointer-events: none;
+}
+
+input:disabled {
+  background-color: #eee;
+  color: #ccc;
+}
+
+.status {
+  background-color: gray;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  padding: 0.4rem 1.2rem;
+  display: inline-block;
+  margin-left: 1.2rem;
+  transform: translateY(-0.4rem);
+}
+
+.status.status-ongoing {
+  background-color: rgb(139, 139, 139);
+}
+.status.status-complete {
+  background-color: rgb(0, 153, 255);
+}
+.status.status-delivered {
+  background-color: rgb(12, 143, 0);
+}
+
+header > h4,
+header > h5,
+header > h6 {
+  margin-bottom: 0.8rem;
+}
+
+.float-right {
+  float: right;
+}
+
+.delete {
+  font-size: 3rem;
+  margin-left: 2.5rem;
+  cursor: pointer;
+  line-height: 20px;
+}
+.delete:hover {
+  color: #999;
+}
+.part-name {
+  margin-bottom: 0;
+}
+.part-id {
+  color: #888;
+}
+
+/*================================= NAVBAR =================================*/
+nav {
+  background-color: rgb(204, 231, 255);
+  padding: 1em 0;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 9999;
+}
+
+.nav-menu.nav-menu-desktop > a {
+  display: inline-block;
+  margin-right: 2.5rem;
+  line-height: 30px;
+  vertical-align: bottom;
+  color: rgb(0, 99, 156);
+  text-decoration: underline #ffffff00;
+  transition: all 0.3s;
+}
+
+.nav-menu-desktop > a,
+.nav-menu-mobile > a {
+  line-height: 30px;
+  vertical-align: bottom;
+  color: rgb(0, 99, 156);
+  text-decoration: underline #ffffff00;
+  transition: all 0.3s;
+}
+
+.nav-menu-desktop > a:hover {
+  text-decoration: underline rgb(0, 99, 156);
+}
+
+#app-logo {
+  margin-right: 4rem;
+  font-family: sans-serif;
+  font-size: 2rem;
+  line-height: 30px;
+  vertical-align: bottom;
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 800px) {
+  .nav-menu-desktop {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 801px) {
+  .nav-menu-mobile {
+    display: none;
+  }
+}
+
+/*================================= REPAIRS =================================*/
+
+.repair-row {
+  border-bottom: 1px solid #e1e1e1;
+  padding: 2rem 0;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.repair-row:first-child {
+  border-top: 1px solid #e1e1e1;
+}
+
+.repair-row > h5 {
+  margin-bottom: 0.5rem;
+}
+
+.repair-row:hover {
+  background-color: #f8f8f8;
+}

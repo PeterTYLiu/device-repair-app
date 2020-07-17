@@ -27,7 +27,7 @@ export default function SelectDevice() {
     ));
 
   return (
-    <React.Fragment>
+    <div className="container">
       <h4>Select a device</h4>
 
       <div className="row">
@@ -79,12 +79,12 @@ export default function SelectDevice() {
       </div>
 
       <Continue
-        nextLink={`/repair?deviceId=${device.id}`}
+        nextLink={`/repair/${device.id}`}
         nextText="Continue"
         backText="back"
         backLink="/newrepair/customer"
         allowNext={device.id ? true : false}
       />
-    </React.Fragment>
+    </div>
   );
 }
