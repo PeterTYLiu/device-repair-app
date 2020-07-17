@@ -13,6 +13,11 @@ router.use('/customers', customerRoutes);
 // Device routes
 router.use('/devices', deviceRoutes);
 
+router.get('/logout', async function (req, res) {
+  req.logOut();
+  res.redirect('/');
+});
+
 // For anything else, render the html page
 // router.use(function (req, res) {
 //   res.sendFile(path.join(__dirname, '../'));
