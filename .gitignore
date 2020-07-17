@@ -104,4 +104,4 @@ dist
 .tern-port
 
 # static build content
-./client/build
+client/build
