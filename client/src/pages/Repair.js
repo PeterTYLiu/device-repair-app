@@ -53,7 +53,9 @@ export default function Repair({ match }) {
               {repairStatus}
             </span>
           </h4>
-          <h6>Joe Smith</h6>
+          <h6>
+            <Link to="/customer/12">Joe Smith</Link>
+          </h6>
           <h6>Apple iPhone Xs</h6>
           <h6>Started Jul. 6 2020</h6>
         </header>
