@@ -3,6 +3,7 @@ const router = require('express').Router();
 const shopRoutes = require('./shops');
 const customerRoutes = require('./customer');
 const deviceRoutes = require('./device');
+const supplierRoutes = require('./supplier');
 
 // Shop routes
 router.use('/shops', shopRoutes);
@@ -12,6 +13,9 @@ router.use('/customers', customerRoutes);
 
 // Device routes
 router.use('/devices', deviceRoutes);
+
+// Supplier routes
+router.use('/suppliers', supplierRoutes);
 
 router.get('/logout', async function (req, res) {
   req.logOut();
