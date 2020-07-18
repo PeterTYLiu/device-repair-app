@@ -2,7 +2,7 @@
   "1": {
     "id": "1",
     "customer": "Roger Clemens",
-    "device": "Galaxy Note 10+",
+    "device": "Galaxy Note10+",
     "startDate": "2020-04-21T18:25:43-05:00",
     "status": "ongoing"
   },
@@ -10,14 +10,14 @@
     "id": "2",
     "customer": "Darryl Strawberry",
     "device": "OnePlus 8 Pro",
-    "startDate": "2020-05-21T18:25:43-05:00",
+    "startDate": "2020-05-29T18:25:43-05:00",
     "status": "complete"
   },
   "3": {
     "id": "3",
     "customer": "José Canseco",
     "device": "iPhone 11 Max",
-    "startDate": "2020-06-21T18:25:43-05:00",
+    "startDate": "2020-06-05T18:25:43-05:00",
     "status": "ongoing"
   },
   "4": {
@@ -31,7 +31,14 @@
     "id": "5",
     "customer": "Wade Boggs",
     "device": "Pixel 4 XL",
-    "startDate": "2020-08-21T18:25:43-05:00",
+    "startDate": "2020-08-22T18:25:43-05:00",
     "status": "delivered"
+  },
+  "6": {
+    "id": "6",
+    "customer": "Mike Scioscia",
+    "device": "Xperia 1 ii",
+    "startDate": "2020-09-04T18:25:43-05:00",
+    "status": "ongoing"
   }
 }
