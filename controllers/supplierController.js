@@ -18,14 +18,14 @@ module.exports = {
     }
   },
 
-  // get shop details
+  // get supplier details
   find: async function (req, res) {
     try {
-      const existingDevice = await Device.findByPk(req.user.id);
-      if (existingDevice === null) {
+      const existingSuppliers = await Supplier.findByPk(req.params.id);
+      if (existingSuppliers === null) {
         res.sendStatus(404);
       } else {
-        res.json({ data: existingDevice });
+        res.json({ data: existingSuppliers });
       }
     } catch (error) {
       handleError(error, res);
@@ -34,11 +34,28 @@ module.exports = {
 
   findAll: async function (req, res) {
     try {
-      const existingDevices = await Device.findAll();
-      if (existingDevices === null) {
+      const existingSuppliers = await Supplier.findAll();
+      if (existingSuppliers === null) {
         res.sendStatus(404);
       } else {
-        res.json({ data: existingDevices });
+        res.json({ data: existingSuppliers });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  findByShop: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const existingSuppliers = await ShopSuppliers.findAll({
+        include: [{ model: Supplier }],
+        where: { ShopId: shopId },
+      });
+      if (existingSuppliers === null) {
+        res.sendStatus(404);
+      } else {
+        res.json({ data: existingSuppliers });
       }
     } catch (error) {
       handleError(error, res);
