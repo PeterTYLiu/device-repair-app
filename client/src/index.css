@@ -9,6 +9,7 @@ body {
 
 #root > .container {
   margin-top: 4rem;
+  padding-bottom: 4rem;
 }
 
 code {
@@ -21,7 +22,9 @@ select,
 textarea {
   margin-bottom: 3rem;
 }
-
+p {
+  margin-bottom: 2rem;
+}
 a {
   text-decoration: none;
 }
@@ -217,4 +220,23 @@ nav {
 .sort-dropdown {
   flex-grow: 2;
   min-width: 300px;
+}
+
+/*================================= PARTS =================================*/
+
+/* @media only screen and (max-width: 600px) {
+  .partOrderDate {
+    display: none;
+  }
+} */
+
+.partDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 4rem;
+  justify-content: space-between;
+}
+.partDetails > span:first-child {
+  flex-grow: 1;
+  text-align: left;
 }

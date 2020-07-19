@@ -9,9 +9,16 @@ export default function MenuBar() {
         <div className="container" style={{ display: "flex" }}>
           <div id="app-logo">
             <Link to="/">
-              <span role="img" aria-label="image of a parrot">
-                🦜
-              </span>
+              <span
+                role="img"
+                aria-label="our logo"
+                style={{
+                  display: "inline-block",
+                  width: "30px",
+                  height: "22px",
+                  background: 'no-repeat center/contain url("/logo.png")',
+                }}
+              ></span>
               REPARRiT
             </Link>
           </div>
@@ -20,7 +27,6 @@ export default function MenuBar() {
             <Link to="/repairs">Repairs</Link>
             <Link to="/customers">Customers</Link>
             <Link to="/parts">Parts</Link>
-            <Link to="/suppliers">Suppliers</Link>
           </div>
 
           <div
