@@ -5,6 +5,7 @@ const customerRoutes = require('./customer');
 const deviceRoutes = require('./device');
 const supplierRoutes = require('./supplier');
 const partRoutes = require('./parts');
+const repairParts = require('./reapirs');
 
 // Shop routes
 router.use('/shops', shopRoutes);
@@ -19,6 +20,9 @@ router.use('/devices', deviceRoutes);
 router.use('/suppliers', supplierRoutes);
 
 router.use('/parts', partRoutes);
+
+// repair routes
+router.use('/repairs', repairParts);
 
 router.get('/logout', async function (req, res) {
   req.logOut();

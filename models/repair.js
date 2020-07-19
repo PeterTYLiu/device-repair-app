@@ -1,5 +1,3 @@
-const repairStatus = require('./repairStatus');
-
 module.exports = function (sequelize, DataTypes) {
   const Repair = sequelize.define('Repair', {
     startDate: {
@@ -18,53 +16,62 @@ module.exports = function (sequelize, DataTypes) {
       },
     },
     totalPrice: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isFloat: true,
+        isDecimal: true,
+        min: 0.0,
       },
     },
     laborCost: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isFloat: true,
+        isDecimal: true,
+        min: 0.0,
       },
     },
     description: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: '',
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Ongoing',
       validate: {
-        notEmpty: true,
+        isIn: [['Ongoing', 'Completed', 'Delivered']],
       },
     },
   });
   Repair.associate = (models) => {
     Repair.belongsTo(models.Shop, {
-      as: 'repairShop',
+      // as: 'repairShop',
       foreignKey: {
         name: 'repairShopId',
         allowNull: false,
       },
     });
-    Repair.hasOne(models.RepairStatus, {
-      as: 'rapirStaus',
-      foreignKey: {
-        allowNull: false,
-      },
-    });
+    // Repair.hasOne(models.RepairStatus, {
+    //   as: 'repairStaus',
+    //   foreignKey: {
+    //     allowNull: false,
+    //   },
+    // });
     Repair.hasOne(models.Warranty, {
-      as: 'rapairWarranty',
+      // as: 'rapairWarranty',
       foreignKey: {
         allowNull: true, // a rapair is not required to have a warranty
         onDelete: 'CASCADE',
       },
     });
+    Repair.belongsTo(models.Device);
     Repair.belongsToMany(models.Part, { through: 'RepairParts' });
     Repair.belongsTo(models.Customer, {
-      as: 'repairCustomer',
+      // as: 'repairCustomer',
       foreignKey: {
         name: 'repairCustomerId',
         allowNull: false,

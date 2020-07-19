@@ -1,13 +1,20 @@
 module.exports = function (sequelize, DataTypes) {
   const RepairParts = sequelize.define('RepairParts', {
-    comeBackDate: {
-      /** This is the date a particular part for a paricular repair comes back for repair again */
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-      validate: {
-        isDate: true,
-      },
+    repairPartId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    replaced: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0,
     },
   });
+
+  RepairParts.associate = function (models) {
+    // RepairParts.belongsTo(models.Shop);
+    RepairParts.hasMany(models.RepairPartReturn);
+  };
   return RepairParts;
 };

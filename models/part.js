@@ -7,6 +7,14 @@ module.exports = function (sequelize, DataTypes) {
         len: [1],
       },
     },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.0,
+      validate: {
+        isNumeric: true,
+      },
+    },
   });
 
   // Define Associations here

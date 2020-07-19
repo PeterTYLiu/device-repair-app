@@ -18,11 +18,12 @@ module.exports = function (sequelize, DataTypes) {
       },
     },
     price: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isFloat: true,
+        isDecimal: true,
+        min: 0.0,
       },
     },
     status: {
@@ -44,13 +45,13 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
       },
     });
-    Warranty.belongsTo(models.Repair, {
-      as: 'rapairWarranty',
-      foreignKey: {
-        allowNull: true, // a rapair is not required to have a warranty
-        onDelete: 'CASCADE',
-      },
-    });
+    // Warranty.belongsTo(models.Repair, {
+    //   as: 'rapairWarranty',
+    //   foreignKey: {
+    //     allowNull: true, // a rapair is not required to have a warranty
+    //     onDelete: 'CASCADE',
+    //   },
+    // });
   };
 
   return Warranty;
