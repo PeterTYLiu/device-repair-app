@@ -4,28 +4,73 @@ import MenuBar from "../components/MenuBar";
 
 export default function Repair({ match }) {
   const usedParts = [
-    { id: 1604, name: "iPhone Xs LCD display", cost: 41.28 },
-    { id: 103, name: "iPhone Xs back glass", cost: 7.98 },
-    { id: 340, name: "iPhone Xs battery", cost: 22.05 },
+    {
+      id: 1604,
+      name: "iPhone Xs LCD display",
+      cost: 41.28,
+      replaced: true,
+      dateAdded: 950,
+    },
+    {
+      id: 103,
+      name: "iPhone Xs back glass",
+      cost: 7.98,
+      replaced: false,
+      dateAdded: 950,
+    },
+    {
+      id: 340,
+      name: "iPhone Xs battery",
+      cost: 22.05,
+      replaced: false,
+      dateAdded: 1270,
+    },
   ];
 
   const [repairStatus, setRepairStatus] = useState("ongoing");
   const [hasWarranty, setHasWarranty] = useState(false);
+  const [warranty, setWarranty] = useState({
+    dateAdded: 1000,
+    dateExpired: 2000,
+  });
   const [parts, setParts] = useState(usedParts);
   const [costOfLabour, setCostOfLabour] = useState("");
   const [costOfWarranty, setCostOfWarranty] = useState("");
+
+  function calculateCostOfParts() {
+    if (hasWarranty) {
+      return parts
+        .filter((part) => part.dateAdded < warranty.dateAdded)
+        .reduce((total, part) => {
+          return total + part.cost;
+        }, 0);
+    }
+    return parts.reduce((total, part) => {
+      return total + part.cost;
+    }, 0);
+  }
 
   const partsTable = parts.map((part) => {
     return (
       <div className="part-row" key={part.id}>
         <div>
           <p className="part-name">
-            <Link target="_blank" to="/somepage">
-              {part.name}
+            <Link target="_blank" to={`/part/${part.id}`}>
+              {hasWarranty && part.replaced ? (
+                <span>
+                  <del>{part.name}</del> <em>Replaced</em>
+                </span>
+              ) : (
+                part.name
+              )}
             </Link>
-            {repairStatus === "ongoing" && !hasWarranty ? (
+            {repairStatus === "ongoing" ? (
               <span
-                className="delete float-right"
+                className={`delete float-right ${
+                  hasWarranty && part.dateAdded < warranty.dateAdded
+                    ? "delete-disabled"
+                    : ""
+                }`}
                 id={part.id}
                 onClick={(e) => {
                   setParts(
@@ -36,7 +81,11 @@ export default function Repair({ match }) {
                 ×
               </span>
             ) : null}
-            <span className="float-right">${part.cost}</span>
+            <span className="float-right">
+              {!hasWarranty || part.dateAdded < warranty.dateAdded
+                ? `$${part.cost}`
+                : "no cost"}
+            </span>
           </p>
         </div>
         <div>
@@ -59,7 +108,10 @@ export default function Repair({ match }) {
         </p>
         <p>Warranty price: ${costOfWarranty}</p>
         {repairStatus === "delivered" ? (
-          <Link className="button button-primary" to={`/`}>
+          <Link
+            className="button button-primary"
+            to={`/repair/${match.params.id}/claimwarranty`}
+          >
             Claim warranty
           </Link>
         ) : null}
@@ -160,7 +212,7 @@ export default function Repair({ match }) {
       <div className="container">
         <header>
           <button
-            className="button-primary"
+            className="button"
             onClick={() => {
               setHasWarranty(!hasWarranty);
               setCostOfWarranty(costOfWarranty == "25.00" ? "0.00" : "25.00");
@@ -186,7 +238,7 @@ export default function Repair({ match }) {
           <div className="eight columns">
             <h5>Parts</h5>
             {partsTable}
-            {repairStatus === "ongoing" && !hasWarranty ? (
+            {repairStatus === "ongoing" ? (
               <Link to={`./${match.params.id}/selectpart`} className="button">
                 Add part
               </Link>
@@ -226,11 +278,11 @@ export default function Repair({ match }) {
           <div className="twelve columns">
             <h5>
               Total cost: $
-              {parts
-                .reduce((total, part) => {
-                  return total + part.cost;
-                }, Number(costOfLabour) + Number(costOfWarranty))
-                .toFixed(2)}
+              {(
+                calculateCostOfParts() +
+                Number(costOfLabour) +
+                Number(costOfWarranty)
+              ).toFixed(2)}
             </h5>
             {mainButtonSection}
           </div>

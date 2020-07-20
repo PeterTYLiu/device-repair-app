@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Continue from "../components/Continue";
-import { Link } from "react-router-dom";
 
 export default function AddWarranty({ match }) {
   const [warrantyPrice, setWarrantyPrice] = useState("");
@@ -51,19 +50,19 @@ export default function AddWarranty({ match }) {
           ></input>
           <div className="radio-buttons">
             <div
-              className={warrantyDuration == 6 ? "active" : ""}
+              className={warrantyDuration === 6 ? "active" : ""}
               onClick={() => setWarrantyDuration(6)}
             >
               6 months
             </div>
             <div
-              className={warrantyDuration == 12 ? "active" : ""}
+              className={warrantyDuration === 12 ? "active" : ""}
               onClick={() => setWarrantyDuration(12)}
             >
               12 months
             </div>
             <div
-              className={warrantyDuration == 18 ? "active" : ""}
+              className={warrantyDuration === 18 ? "active" : ""}
               onClick={() => setWarrantyDuration(18)}
             >
               18 months
