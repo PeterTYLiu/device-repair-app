@@ -1,5 +1,15 @@
 const express = require('express');
-const { Repair, Customer, RepairParts, Part, Device } = require('../models');
+
+const {
+  Repair,
+  Customer,
+  RepairParts,
+  Part,
+  Device,
+  Warranty,
+  RepairPartReturn,
+} = require('../models');
+const warranties = require('./warrantyController');
 
 module.exports = {
   create: async function (req, res) {
@@ -17,7 +27,12 @@ module.exports = {
       const repairId = req.params.id;
       const existingRepair = await Repair.findOne({
         where: { id: repairId, repairShopId: shopId },
-        include: [{ model: Customer }, { model: Part }, { model: Device }],
+        include: [
+          { model: Customer },
+          { model: Part },
+          { model: Device },
+          { model: Warranty },
+        ],
       });
       if (existingRepair === null) {
         res.sendStatus(404);
@@ -84,16 +99,12 @@ module.exports = {
     try {
       const shopId = req.user.id;
       const updatedLaborCost = req.body.laborCost;
-      const customerRepair = await Repair.findByPk(req.params.repairId);
-      if (customerRepair === null) {
-        res.sendStatus(404);
-      } else {
-        customerRepair.laborCost = req.body.laborCost;
-        customerRepair.totalPrice += req.body.laborCost;
-        await customerRepair.save({ fields: ['laborCost', 'totalPrice'] });
-        await customerRepair.reload();
-        res.json({ data: customerRepair });
-      }
+      const customerRepair = req.params.repair;
+      customerRepair.laborCost = req.body.laborCost;
+      customerRepair.totalPrice += req.body.laborCost;
+      await customerRepair.save({ fields: ['laborCost', 'totalPrice'] });
+      await customerRepair.reload();
+      res.json({ data: customerRepair });
     } catch (error) {
       handleError(error, res);
     }
@@ -101,15 +112,23 @@ module.exports = {
   updateNotes: async function (req, res) {
     try {
       const shopId = req.user.id;
-      const customerRepair = await Repair.findByPk(req.params.repairId);
-      if (customerRepair === null) {
-        res.sendStatus(404);
-      } else {
-        customerRepair.description = req.body.description;
-        await customerRepair.save({ fields: ['description'] });
-        await customerRepair.reload();
-        res.json({ data: customerRepair });
-      }
+      const customerRepair = req.params.repair;
+      customerRepair.description = req.body.description;
+      await customerRepair.save({ fields: ['description'] });
+      await customerRepair.reload();
+      res.json({ data: customerRepair });
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+  updateStatus: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const customerRepair = req.params.repair;
+      customerRepair.status = req.body.status;
+      await customerRepair.save({ fields: ['status'] });
+      await customerRepair.reload();
+      res.json({ data: customerRepair });
     } catch (error) {
       handleError(error, res);
     }
@@ -126,7 +145,7 @@ module.exports = {
       // Gotta update the total cost of the repair
       const partPrice = await Part.findByPk(partId, { attributes: ['price'] });
       // gotta add this to totalprice of the repair
-      const repair = await Repair.findByPk(repairId);
+      const repair = req.params.repair;
       await repair.increment(['totalPrice'], {
         by: partPrice.dataValues.price,
       });
@@ -142,7 +161,7 @@ module.exports = {
       const repairPart = await RepairParts.findOne({
         where: { RepairId: repairId, PartId: partId },
       });
-      const repair = await Repair.findByPk(repairId);
+      const repair = req.params.repair;
       if (repairPart === null) {
         res.sendStatus(200); // Part has already been deleted so we just send 200.
       } else if (repair.dataValues.repairShopId !== shopId) {
@@ -158,6 +177,41 @@ module.exports = {
         });
         await repairPart.destroy();
         res.sendStatus(200);
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  claimWarranty: async function (req, res) {
+    try {
+      const repairId = req.params.repairId;
+      // certain parts will be replaced. So get the parts id and mark them as replaced
+      // and record today's date as comeback date/
+      // But first check a valid warranty exist for this repair and that the
+      const repair = req.params.repair;
+      const isValidWarranty = await warranties.isWarrantyValid(
+        req.params.repairId
+      );
+      if (repair.status === 'Delivered') {
+        const { partsToBeReplaced } = req.body;
+        const repairParts = await RepairParts.findAll({
+          include: [{ model: RepairPartReturn }],
+          where: { PartId: [...partsToBeReplaced], RepairId: repairId },
+        });
+        repairParts.forEach(async (repairPart) => {
+          repairPart.replaced = true;
+          await repairPart.save();
+          await RepairPartReturn.create({
+            RepairPartId: repairPart.dataValues.repairPartId,
+            comeBackDate: new Date().getTime(),
+          });
+        });
+        res.sendStatus(200);
+      } else {
+        res.statusMessage =
+          'Repair job must be in delivered state before the Warranty can be claimed.';
+        res.sendStatus(400);
       }
     } catch (error) {
       handleError(error, res);
