@@ -3,6 +3,7 @@ const path = require('path');
 const PORT = process.env.PORT || 3001;
 const db = require('./models');
 const app = express();
+const compression = require('compression');
 const session = require('express-session');
 const passport = require('./config/passport');
 const mainRouter = require('./routes');
@@ -22,6 +23,9 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
+// add compression middleware
+app.use(compression());
 
 // Define API routes here
 app.use(mainRouter);
