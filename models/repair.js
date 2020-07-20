@@ -64,7 +64,7 @@ module.exports = function (sequelize, DataTypes) {
     Repair.hasOne(models.Warranty, {
       // as: 'rapairWarranty',
       foreignKey: {
-        allowNull: true, // a rapair is not required to have a warranty
+        allowNull: false, // foreign key will be in warranty table. A warranty may not exist without a repair.
         onDelete: 'CASCADE',
       },
     });
