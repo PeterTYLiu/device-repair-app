@@ -14,7 +14,13 @@ module.exports = function (sequelize, DataTypes) {
 
   RepairParts.associate = function (models) {
     // RepairParts.belongsTo(models.Shop);
-    RepairParts.hasMany(models.RepairPartReturn);
+    RepairParts.hasMany(models.RepairPartReturn, {
+      foreignKey: {
+        name: 'RepairPartId',
+        allowNull: false,
+        onDelete: 'CASCADE',
+      },
+    });
   };
   return RepairParts;
 };
