@@ -17,6 +17,18 @@ module.exports = function (sequelize, DataTypes) {
         isDate: true,
       },
     },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: true,
+        isPositiveInt: function (value) {
+          if (value < 0) {
+            throw new Error('Warranty period may not a be a negative number');
+          }
+        },
+      },
+    },
     price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
@@ -29,7 +41,7 @@ module.exports = function (sequelize, DataTypes) {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'None',
+      defaultValue: 'Valid',
       validate: {
         isIn: [['Valid', 'Expired']],
       },
