@@ -12,6 +12,7 @@ export default function Part({ match }) {
       deviceId: 48,
       dateAdded: "2020-05-29T18:25:43-05:00",
       cost: 32.15,
+      failureRate: 8.5,
     },
     {
       id: 98,
@@ -21,6 +22,7 @@ export default function Part({ match }) {
       dateAdded: "2019-04-12T18:25:43-05:00",
       manufacturer: "Shenzhen Wholesale Components ltd.",
       cost: 33.16,
+      failureRate: 11.1,
     },
     {
       id: 34,
@@ -30,35 +32,31 @@ export default function Part({ match }) {
       dateAdded: "2016-11-25T18:25:43-05:00",
       manufacturer: "Shenzhen Wholesale Components ltd.",
       cost: 32.48,
+      failureRate: 14.2,
     },
   ];
 
-  // let sortedRepairsTable = customerRepairs
-  //   .sort((a, b) => {
-  //     if (a.startDate > b.startDate) return -1;
-  //     return 1;
-  //   })
-  //   .map(({ cost, id, device, status, startDate }) => {
-  //     return (
-  //       <div
-  //         className="repair-row"
-  //         key={id}
-  //         onClick={() => (window.location.href = `/repair/${id}`)}
-  //       >
-  //         <h5>
-  //           {device}
-  //           <span className={`status status-${status}`}>{status}</span>
-  //           <span style={{ color: "#999", float: "right" }}>#{id}</span>
-  //         </h5>
-  //         <p style={{ marginBottom: 0 }}>
-  //           ${cost}
-  //           <span style={{ float: "right" }}>
-  //             Started: {startDate.substr(0, 10)}
-  //           </span>
-  //         </p>
-  //       </div>
-  //     );
-  //   });
+  let batchesTable = unsortedBatches
+    .sort((a, b) => {
+      if (a.dateAdded > b.dateAdded) return -1;
+      return 1;
+    })
+    .map(({ cost, dateAdded, failureRate, id }) => {
+      return (
+        <div className="table-row" key={id}>
+          <h5>
+            {dateAdded.substr(0, 10)}
+            <span style={{ color: "#999", float: "right" }}>#{id}</span>
+          </h5>
+          <p style={{ marginBottom: 0 }}>
+            ${cost} ea.
+            <span style={{ float: "right" }}>
+              {failureRate}% fail within one year
+            </span>
+          </p>
+        </div>
+      );
+    });
 
   return (
     <React.Fragment>
@@ -116,7 +114,7 @@ export default function Part({ match }) {
         <div className="row">
           <div className="eight columns">
             <div>
-              <h5 style={{ display: "inline-block", marginBottom: 0 }}>
+              <h5 style={{ display: "inline-block", marginBottom: "2rem" }}>
                 Batches
               </h5>
               <Link
@@ -127,6 +125,7 @@ export default function Part({ match }) {
                 Add batch
               </Link>
             </div>
+            <div>{batchesTable}</div>
           </div>
         </div>
       </div>

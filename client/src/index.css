@@ -276,3 +276,16 @@ nav {
 #statistics > div > h5 {
   line-height: 1;
 }
+.table-row {
+  border-bottom: 1px solid #e1e1e1;
+  padding: 2rem 0;
+}
+.table-row:first-child {
+  border-top: 1px solid #e1e1e1;
+}
+.table-row:last-child {
+  margin-bottom: 4rem;
+}
+.table-row > h5 {
+  margin-bottom: 0.5rem;
+}
