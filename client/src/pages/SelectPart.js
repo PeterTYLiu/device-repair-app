@@ -98,7 +98,7 @@ export default function SelectPart({ match }) {
 
       <Continue
         nextLink={`/repair/${match.params.id}`}
-        nextText="Continue"
+        nextText="Add to repair"
         backText="back"
         backLink={`/repair/${match.params.id}`}
         allowNext={partId ? true : false}

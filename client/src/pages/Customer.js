@@ -46,7 +46,7 @@ export default function Customer({ match }) {
             <span style={{ color: "#999", float: "right" }}>#{id}</span>
           </h5>
           <p style={{ marginBottom: 0 }}>
-            ${cost}
+            ${cost.toFixed(2)}
             <span style={{ float: "right" }}>
               Started: {startDate.substr(0, 10)}
             </span>
@@ -65,6 +65,7 @@ export default function Customer({ match }) {
           buttonText="New repair"
           subtitle={"Customer #" + match.params.id}
         />
+        <h5>Repair history</h5>
         <div>{sortedRepairsTable}</div>
       </div>
     </React.Fragment>
