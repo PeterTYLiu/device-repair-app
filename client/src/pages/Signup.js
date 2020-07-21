@@ -109,16 +109,24 @@ export default function Home() {
             marginTop: "3rem",
           }}
         >
-          <h5>Log in to your account</h5>
+          <h5>Sign up for a REPARRiT shop</h5>
           <form>
+            <label htmlFor="name">Store name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Andi's Repair Shack"
+              className="u-full-width"
+              required
+              autoFocus
+            ></input>
             <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
-              placeholder="my.name@example.com"
+              placeholder="support@andisrepairshack.com"
               className="u-full-width"
               required
-              autoFocus
             ></input>
             <label htmlFor="password">Password</label>
             <input
@@ -130,13 +138,12 @@ export default function Home() {
             <input
               class="button-primary"
               type="submit"
-              value="Log in"
+              value="Sign up"
               style={{ width: "100%", marginBottom: "0" }}
             />
           </form>
           <p style={{ textAlign: "center" }}>
-            No account?{" "}
-            <Link to="/signup">Create&nbsp;a&nbsp;REPARRiT&nbsp;shop</Link>
+            Have an account? <Link to="/login">Log in</Link>
           </p>
         </div>
       </div>

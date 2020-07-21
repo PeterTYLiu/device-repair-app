@@ -4,41 +4,47 @@
     "customer": "Roger Clemens",
     "device": "Galaxy Note10+",
     "startDate": "2020-04-21T18:25:43-05:00",
-    "status": "ongoing"
+    "status": "ongoing",
+    "hasWarranty": false
   },
   "2": {
     "id": "2",
     "customer": "Darryl Strawberry",
     "device": "OnePlus 8 Pro",
     "startDate": "2020-05-29T18:25:43-05:00",
-    "status": "complete"
+    "status": "complete",
+    "hasWarranty": false
   },
   "3": {
     "id": "3",
     "customer": "José Canseco",
     "device": "iPhone 11 Max",
     "startDate": "2020-06-05T18:25:43-05:00",
-    "status": "ongoing"
+    "status": "ongoing",
+    "hasWarranty": true
   },
   "4": {
     "id": "4",
     "customer": "Don Mattingly",
     "device": "Galaxy S20 Ultra",
     "startDate": "2020-07-21T18:25:43-05:00",
-    "status": "complete"
+    "status": "complete",
+    "hasWarranty": true
   },
   "5": {
     "id": "5",
     "customer": "Wade Boggs",
     "device": "Pixel 4 XL",
     "startDate": "2020-08-22T18:25:43-05:00",
-    "status": "delivered"
+    "status": "delivered",
+    "hasWarranty": true
   },
   "6": {
     "id": "6",
     "customer": "Mike Scioscia",
     "device": "Xperia 1 ii",
     "startDate": "2020-09-04T18:25:43-05:00",
-    "status": "ongoing"
+    "status": "ongoing",
+    "hasWarranty": false
   }
 }
