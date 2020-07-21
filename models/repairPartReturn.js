@@ -1,14 +1,12 @@
 module.exports = function (sequelize, DataTypes) {
-  const RepairParts = sequelize.define('RepairParts', {
-    repairPartId: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    replaced: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: 0,
+  const RepairPartReturn = sequelize.define('RepairPartReturn', {
+    comeBackDate: {
+      /** This is the date a particular part for a paricular repair comes back for repair again */
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      validate: {
+        isDate: true,
+      },
     },
     quantity: {
       type: DataTypes.INTEGER,
@@ -25,9 +23,9 @@ module.exports = function (sequelize, DataTypes) {
     },
   });
 
-  RepairParts.associate = function (models) {
+  RepairPartReturn.associate = function (models) {
     // RepairParts.belongsTo(models.Shop);
-    RepairParts.hasMany(models.RepairPartReturn, {
+    RepairPartReturn.belongsTo(models.RepairParts, {
       foreignKey: {
         name: 'RepairPartId',
         allowNull: false,
@@ -35,5 +33,6 @@ module.exports = function (sequelize, DataTypes) {
       },
     });
   };
-  return RepairParts;
+
+  return RepairPartReturn;
 };

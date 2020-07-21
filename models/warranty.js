@@ -17,18 +17,31 @@ module.exports = function (sequelize, DataTypes) {
         isDate: true,
       },
     },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: true,
+        isPositiveInt: function (value) {
+          if (value < 0) {
+            throw new Error('Warranty period may not a be a negative number');
+          }
+        },
+      },
+    },
     price: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isFloat: true,
+        isDecimal: true,
+        min: 0.0,
       },
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'None',
+      defaultValue: 'Valid',
       validate: {
         isIn: [['Valid', 'Expired']],
       },
@@ -44,13 +57,13 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
       },
     });
-    Warranty.belongsTo(models.Repair, {
-      as: 'rapairWarranty',
-      foreignKey: {
-        allowNull: true, // a rapair is not required to have a warranty
-        onDelete: 'CASCADE',
-      },
-    });
+    // Warranty.belongsTo(models.Repair, {
+    //   as: 'rapairWarranty',
+    //   foreignKey: {
+    //     allowNull: true, // a rapair is not required to have a warranty
+    //     onDelete: 'CASCADE',
+    //   },
+    // });
   };
 
   return Warranty;

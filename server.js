@@ -3,6 +3,7 @@ const path = require('path');
 const PORT = process.env.PORT || 3001;
 const db = require('./models');
 const app = express();
+const compression = require('compression');
 const session = require('express-session');
 const passport = require('./config/passport');
 const mainRouter = require('./routes');
@@ -23,6 +24,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// add compression middleware
+app.use(compression());
+
 // Define API routes here
 app.use(mainRouter);
 
@@ -32,12 +36,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, './client/build/index.html'));
 });
 
-db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0').then(() => {
-  db.sequelize.sync().then(() => {
-    // { force: true }
-    db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0').then(() => {
-      const PORT = process.env.PORT || 3001;
-      app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
-    });
+db.sequelize.sync().then(() => {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
   });
 });
