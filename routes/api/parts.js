@@ -14,4 +14,6 @@ partsRouter.get('/device/:id', parts.findByDevice);
 
 partsRouter.get('/:id', parts.find);
 
+partsRouter.get('/:id/stats', parts.getStats);
+
 module.exports = partsRouter;

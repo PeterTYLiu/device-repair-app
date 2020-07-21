@@ -10,6 +10,19 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0,
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      validate: {
+        isInt: true,
+        isPositiveInt: function (value) {
+          if (value < 1) {
+            throw new Error('Part quantity can not less than one.');
+          }
+        },
+      },
+    },
   });
 
   RepairParts.associate = function (models) {

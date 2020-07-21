@@ -36,12 +36,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, './client/build/index.html'));
 });
 
-db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0').then(() => {
-  db.sequelize.sync().then(() => {
-    // { force: true }
-    db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0').then(() => {
-      const PORT = process.env.PORT || 3001;
-      app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
-    });
+db.sequelize.sync().then(() => {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
   });
 });

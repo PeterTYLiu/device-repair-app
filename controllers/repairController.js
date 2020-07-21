@@ -136,19 +136,25 @@ module.exports = {
   addPart: async function (req, res) {
     try {
       const shopId = req.user.id;
-      const { repairId, partId } = req.params;
+      const { repairId, partId, quantity = 1 } = req.params;
+      // Check if the part is already to the repair
+      const repairPart = await RepairParts.findOne({
+        where: { RepairId: repairId, PartId: partId },
+      });
+      if (repairPart) {
+        // if it already exists, just increase the quantity
+        await incrementPartQuantityForRepair(repairPart, req, res);
+        res.status(200).json(repairPart);
+        return;
+      }
       const addedPart = await RepairParts.create({
         RepairId: repairId,
         PartId: partId,
         ShopId: shopId,
+        quantity: quantity,
       });
       // Gotta update the total cost of the repair
-      const partPrice = await Part.findByPk(partId, { attributes: ['price'] });
-      // gotta add this to totalprice of the repair
-      const repair = req.params.repair;
-      await repair.increment(['totalPrice'], {
-        by: partPrice.dataValues.price,
-      });
+      await incrementRepairCostForAddedPart(partId, req.params.repair);
       res.status(201).json(addedPart);
     } catch (error) {
       handleError(error, res);
@@ -193,8 +199,8 @@ module.exports = {
       const isValidWarranty = await warranties.isWarrantyValid(
         req.params.repairId
       );
-      if (repair.status === 'Delivered') {
-        const { partsToBeReplaced } = req.body;
+      if (repair.status === 'Delivered' && isValidWarranty) {
+        const { partsToBeReplaced, quantity = 1 } = req.body;
         const repairParts = await RepairParts.findAll({
           include: [{ model: RepairPartReturn }],
           where: { PartId: [...partsToBeReplaced], RepairId: repairId },
@@ -205,6 +211,7 @@ module.exports = {
           await RepairPartReturn.create({
             RepairPartId: repairPart.dataValues.repairPartId,
             comeBackDate: new Date().getTime(),
+            quantity: quantity,
           });
         });
         res.sendStatus(200);
@@ -219,7 +226,26 @@ module.exports = {
   },
 };
 
+async function incrementPartQuantityForRepair(repairPart, req, res) {
+  const { repairId, partId, quantity = 1 } = req.params;
+  await repairPart.increment(['quantity'], {
+    by: quantity,
+  });
+  await incrementRepairCostForAddedPart(partId, req.params.repair);
+  await repairPart.reload();
+  return repairPart;
+}
+
+async function incrementRepairCostForAddedPart(partId, repair) {
+  const partPrice = await Part.findByPk(partId, { attributes: ['price'] });
+  // gotta add this to totalprice of the repair
+  await repair.increment(['totalPrice'], {
+    by: partPrice.dataValues.price,
+  });
+}
+
 function handleError(error, res) {
-  console.log(error);
-  res.status(500).json({ message: error });
+  // console.log(error);
+  const { name } = error;
+  res.status(500).json({ message: name ? name : error });
 }

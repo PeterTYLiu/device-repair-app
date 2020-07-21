@@ -1,7 +1,9 @@
 const express = require('express');
 const { Part, Supplier } = require('../models');
 const { Device } = require('../models');
-const { Repair } = require('../models');
+const { Repair, RepairParts, RepairPartReturn } = require('../models');
+const db = require('../models');
+const Op = db.Sequelize.Op;
 
 module.exports = {
   /** Create a part with provided parts, supplier, and device detail for currently signed in shop */
@@ -62,6 +64,39 @@ module.exports = {
       } else {
         res.json({ data: existingParts });
       }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+  getStats: async function (req, res) {
+    try {
+      // first lets get the total installs for this part
+      const totalInstalls = await RepairParts.sum('quantity', {
+        where: { PartId: req.params.id },
+      });
+      let dateRange = new Date().getTime() - 31556952000;
+      const totalInstallsWithInYear = await RepairParts.sum('quantity', {
+        where: { PartId: req.params.id, createdAt: { [Op.gt]: dateRange } },
+      });
+
+      const totalFailuresInLastYear = await RepairPartReturn.sum(
+        'RepairPartReturn.quantity',
+        {
+          include: [{ model: RepairParts, where: { PartId: req.params.id } }],
+          where: { comeBackDate: { [Op.gt]: dateRange } },
+        }
+      );
+      const percentFailureLastYear =
+        totalInstallsWithInYear == 0
+          ? 0
+          : (totalFailuresInLastYear / totalInstallsWithInYear) * 100;
+      res.json({
+        data: {
+          totalInstalls: totalInstalls,
+          failures: totalFailuresInLastYear,
+          percentFailure: percentFailureLastYear,
+        },
+      });
     } catch (error) {
       handleError(error, res);
     }

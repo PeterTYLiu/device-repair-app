@@ -13,10 +13,14 @@ repairsRouter.get('/', repairs.findByShop);
 
 repairsRouter.get('/:id', repairs.find);
 
-repairsRouter.post('/:repairId/:partId/add', isValidRepair, repairs.addPart);
+repairsRouter.post(
+  '/:repairId/addPart/:partId/',
+  isValidRepair,
+  repairs.addPart
+);
 
 repairsRouter.post(
-  '/:repairId/:partId/remove',
+  '/:repairId/removePart/:partId',
   isValidRepair,
   repairs.removePart
 );
