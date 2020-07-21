@@ -4,6 +4,7 @@ import SelectDevice from "./pages/SelectDevice";
 import SelectCustomer from "./pages/SelectCustomer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Repair from "./pages/Repair";
 import Customer from "./pages/Customer";
 import Customers from "./pages/Customers";
@@ -19,7 +20,8 @@ function App() {
     <Router>
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route exact path="/login/:mode" component={Login} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/signup" component={Signup} />
         <Route exact path="/repairs" component={Repairs} />
         <Route exact path="/newrepair/customer" component={SelectCustomer} />
         <Route exact path="/newrepair/device" component={SelectDevice} />

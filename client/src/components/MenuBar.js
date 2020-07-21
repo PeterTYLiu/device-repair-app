@@ -40,7 +40,7 @@ export default function MenuBar() {
             className="nav-menu-mobile"
             style={{ flexGrow: 5, textAlign: "right" }}
           >
-            <Link>Menu</Link>
+            <a>Menu</a>
           </div>
         </div>
       </nav>
