@@ -16,8 +16,7 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       unique: true,
       validate: {
-        isAlphanumeric: true,
-        len: [4, 10],
+        len: [3],
       },
     },
     password: {
@@ -33,7 +32,6 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       validate: {
         len: [2],
-        isAlpha: true,
       },
     },
   });
