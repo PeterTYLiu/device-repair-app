@@ -88,16 +88,6 @@ export default function Home() {
               />
             </g>
           </svg>
-
-          {/* <h5
-            style={{
-              textAlign: "center",
-              marginTop: "1rem",
-              fontWeight: "400",
-            }}
-          >
-            Repairs rendered reliable
-          </h5> */}
         </div>
 
         <div
@@ -110,11 +100,12 @@ export default function Home() {
           }}
         >
           <h5>Log in to your account</h5>
-          <form>
+          <form method="post" action="/api/shops/login">
             <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
+              name="email"
               placeholder="my.name@example.com"
               className="u-full-width"
               required
@@ -124,6 +115,7 @@ export default function Home() {
             <input
               id="password"
               type="password"
+              name="password"
               className="u-full-width"
               required
             ></input>
