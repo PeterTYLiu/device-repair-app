@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const passGen = require('../config/passwordGenerator');
 
 module.exports = function (sequelize, DataTypes) {
   const Customer = sequelize.define('Customer', {
@@ -15,13 +16,13 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       unique: true,
       validate: {
-        isAlphanumeric: true,
         len: [3],
       },
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: passGen,
       validate: {
         // require one number and one special character at least and enforce
         is: ['^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$'],
