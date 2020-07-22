@@ -1,7 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-export default function Home() {
+export default function Login({ location }) {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
+  useEffect(() => {
+    let urlParams = new URLSearchParams(location.search);
+    if (urlParams.get("signupsuccess")) setSignupSuccess(true);
+  }, []);
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setSignupSuccess(false);
+
+    let response = await fetch("/api/shops/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: e.target[0].value,
+        password: e.target[1].value,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 200) return (window.location = "/repairs");
+    setErrorMessage("Incorrect email or password");
+  };
+
+  const signupSuccessNotification = (
+    <div
+      style={{
+        padding: "1rem 2rem",
+        marginTop: "3rem",
+        background: "#dfd",
+        color: "green",
+        border: "1px solid green",
+        borderRadius: "4px",
+      }}
+    >
+      Shop successfully created!
+    </div>
+  );
+
+  const errorNotification = (
+    <div
+      style={{
+        padding: "1rem 2rem",
+        marginTop: "3rem",
+        background: "#fdd",
+        color: "red",
+        border: "1px solid red",
+        borderRadius: "4px",
+      }}
+    >
+      {errorMessage}
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -28,7 +85,6 @@ export default function Home() {
         >
           <svg
             width="80%"
-            height="auto"
             viewBox="0 0 404 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +145,8 @@ export default function Home() {
             </g>
           </svg>
         </div>
-
+        {signupSuccess ? signupSuccessNotification : null}
+        {errorMessage ? errorNotification : null}
         <div
           style={{
             width: "100%",
@@ -99,8 +156,8 @@ export default function Home() {
             marginTop: "3rem",
           }}
         >
-          <h5>Log in to your account</h5>
-          <form method="post" action="/api/shops/login">
+          <h5>Log in to your shop</h5>
+          <form onSubmit={handleLoginSubmit}>
             <label htmlFor="email">Email</label>
             <input
               id="email"
@@ -120,7 +177,7 @@ export default function Home() {
               required
             ></input>
             <input
-              class="button-primary"
+              className="button-primary"
               type="submit"
               value="Log in"
               style={{ width: "100%", marginBottom: "0" }}

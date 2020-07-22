@@ -1,7 +1,46 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function Home() {
+export default function Signup() {
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const errorNotification = (
+    <div
+      style={{
+        padding: "1rem 2rem",
+        marginTop: "3rem",
+        background: "#fdd",
+        color: "red",
+        border: "1px solid red",
+        borderRadius: "4px",
+      }}
+    >
+      {errorMessage}
+    </div>
+  );
+
+  const handleCreateShop = async (e) => {
+    e.preventDefault();
+
+    let response = await fetch("/api/shops/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        name: e.target[0].value,
+        ownerName: e.target[1].value,
+        email: e.target[2].value,
+        password: e.target[3].value,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 201)
+      return (window.location = "/login?signupsuccess=true");
+
+    setErrorMessage("You did something wrong apparently lol");
+  };
+
   return (
     <div
       style={{
@@ -98,7 +137,7 @@ export default function Home() {
             Repairs rendered reliable
           </h5> */}
         </div>
-
+        {errorMessage ? errorNotification : null}
         <div
           style={{
             width: "100%",
@@ -109,7 +148,7 @@ export default function Home() {
           }}
         >
           <h5>Sign up for a REPARRiT shop</h5>
-          <form method="post" action="/api/shops/signup">
+          <form onSubmit={handleCreateShop}>
             <label htmlFor="name">Store name</label>
             <input
               id="name"
