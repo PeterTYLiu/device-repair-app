@@ -33,7 +33,15 @@ export default function MenuBar() {
             className="nav-menu-desktop"
             style={{ flexGrow: 5, textAlign: "right" }}
           >
-            <Link to="/logout">Log out</Link>
+            <a
+              href="#"
+              onClick={async () => {
+                let response = await fetch("api/logout");
+                window.location = "/login";
+              }}
+            >
+              Log out
+            </a>
           </div>
 
           <div

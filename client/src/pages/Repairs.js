@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuBar from "../components/MenuBar";
 import ButtonHeader from "../components/ButtonHeader";
 import repairs from "../repairs.json";
@@ -12,6 +12,16 @@ export default function Repairs() {
     ongoing: true,
     delivered: false,
   });
+
+  useEffect(() => {
+    (async () => {
+      let myShopRepairs = await fetch("/api/repairs");
+      if (myShopRepairs.status === 200) {
+        let responseBody = await myShopRepairs.json();
+        setSortedRepairs(await responseBody.data);
+      }
+    })();
+  }, []);
 
   function toggleStatusFilter(e) {
     setFilters({
