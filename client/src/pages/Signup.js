@@ -28,7 +28,6 @@ export default function Home() {
         >
           <svg
             width="80%"
-            height="auto"
             viewBox="0 0 404 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -110,12 +109,23 @@ export default function Home() {
           }}
         >
           <h5>Sign up for a REPARRiT shop</h5>
-          <form>
+          <form method="post" action="/api/shops/signup">
             <label htmlFor="name">Store name</label>
             <input
               id="name"
               type="text"
+              name="name"
               placeholder="Andi's Repair Shack"
+              className="u-full-width"
+              required
+              autoFocus
+            ></input>
+            <label htmlFor="ownername">Owner name</label>
+            <input
+              id="ownername"
+              name="ownerName"
+              type="text"
+              placeholder="Andi Larson"
               className="u-full-width"
               required
               autoFocus
@@ -123,6 +133,7 @@ export default function Home() {
             <label htmlFor="email">Email</label>
             <input
               id="email"
+              name="email"
               type="email"
               placeholder="support@andisrepairshack.com"
               className="u-full-width"
@@ -131,12 +142,13 @@ export default function Home() {
             <label htmlFor="password">Password</label>
             <input
               id="password"
+              name="password"
               type="password"
               className="u-full-width"
               required
             ></input>
             <input
-              class="button-primary"
+              className="button-primary"
               type="submit"
               value="Sign up"
               style={{ width: "100%", marginBottom: "0" }}
