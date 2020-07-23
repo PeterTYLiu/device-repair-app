@@ -14,7 +14,10 @@ const warranties = require('./warrantyController');
 module.exports = {
   create: async function (req, res) {
     try {
-      const newRepair = await Repair.create(req.body);
+      const newRepair = await Repair.create({
+        ...req.body,
+        repairShopId: req.user.id,
+      });
       res.status(201).json(newRepair);
     } catch (error) {
       handleError(error, res);
@@ -199,7 +202,7 @@ module.exports = {
       const isValidWarranty = await warranties.isWarrantyValid(
         req.params.repairId
       );
-      if (repair.status === 'Delivered' && isValidWarranty) {
+      if (repair.status === 'delivered' && isValidWarranty) {
         const { partsToBeReplaced, quantity = 1 } = req.body;
         const repairParts = await RepairParts.findAll({
           include: [{ model: RepairPartReturn }],

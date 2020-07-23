@@ -41,9 +41,9 @@ module.exports = function (sequelize, DataTypes) {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'Ongoing',
+      defaultValue: 'ongoing',
       validate: {
-        isIn: [['Ongoing', 'Completed', 'Delivered']],
+        isIn: [['ongoing', 'completed', 'delivered']],
       },
     },
   });

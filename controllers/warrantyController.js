@@ -15,7 +15,7 @@ module.exports = {
         // warranty already exists
         res.statusMessage = 'A Warranty Already Exists';
         res.sendStatus(409);
-      } else if (req.params.repair.status !== 'Completed') {
+      } else if (req.params.repair.status !== 'completed') {
         res.statusMessage =
           'The repair must be completed before a warranty can be created';
         res.sendStatus(400);
