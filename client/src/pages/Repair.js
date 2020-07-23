@@ -1,62 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MenuBar from "../components/MenuBar";
 
 export default function Repair({ match }) {
-  const usedParts = [
-    {
-      id: 1604,
-      name: "iPhone Xs LCD display",
-      cost: 41.28,
-      replaced: true,
-      dateAdded: 950,
+  const defaultRepair = {
+    id: 0,
+    startDate: "2020-07-23",
+    endDate: null,
+    totalPrice: "0.00",
+    laborCost: "0.00",
+    description: "",
+    status: "Ongoing",
+    createdAt: "2020-07-23T04:16:20.000Z",
+    updatedAt: "2020-07-23T04:16:20.000Z",
+    repairCustomerId: 3,
+    repairShopId: 1,
+    DeviceId: 4,
+    Customer: {
+      id: 3,
+      email: "ismith@mailinator.com",
+      name: "John Test",
+      password: "$2a$10$zCkDS2It.55r8cdO2QrcBOrssSMiN4BUDhngziHAxrmKlXXfGK3pG",
+      createdAt: "2020-07-23T03:42:54.000Z",
+      updatedAt: "2020-07-23T03:42:54.000Z",
     },
-    {
-      id: 103,
-      name: "iPhone Xs back glass",
-      cost: 7.98,
-      replaced: false,
-      dateAdded: 950,
+    Parts: [],
+    Device: {
+      id: 0,
+      model: "Test Phone",
+      createdAt: "2020-07-23T04:05:59.000Z",
+      updatedAt: "2020-07-23T04:05:59.000Z",
+      ManufacturerId: 2,
     },
-    {
-      id: 340,
-      name: "iPhone Xs battery",
-      cost: 22.05,
-      replaced: false,
-      dateAdded: 1270,
-    },
-  ];
+    Warranty: null,
+  };
 
-  const [repairStatus, setRepairStatus] = useState("ongoing");
-  const [hasWarranty, setHasWarranty] = useState(false);
-  const [warranty, setWarranty] = useState({
-    dateAdded: 1000,
-    dateExpired: 2000,
-  });
-  const [parts, setParts] = useState(usedParts);
-  const [costOfLabour, setCostOfLabour] = useState("");
-  const [costOfWarranty, setCostOfWarranty] = useState("");
+  const setRepairStatus = async (status) => {
+    let response = await fetch(`/api/repairs/${repair.id}/updateStatus`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        status: status,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status === 200) {
+      window.scrollTo(0, 0);
+      window.location.reload();
+    }
+  };
+
+  const [repair, setRepair] = useState(defaultRepair);
+
+  useEffect(() => {
+    (async () => {
+      let repairResponse = await fetch("/api/repairs/" + match.params.id);
+      if (repairResponse.status === 401) return (window.location = "/login");
+      if (repairResponse.status === 200) {
+        let repairBody = await repairResponse.json();
+        let repairData = repairBody.data;
+        // Set state based on repair data
+        setRepair(repairData);
+      }
+    })();
+  }, []);
 
   function calculateCostOfParts() {
-    if (hasWarranty) {
-      return parts
-        .filter((part) => part.dateAdded < warranty.dateAdded)
-        .reduce((total, part) => {
-          return total + part.cost;
-        }, 0);
+    if (repair.Warranty) {
+      return repair.Parts.filter(
+        (part) => part.dateAdded < repair.Warranty.dateAdded
+      ).reduce((total, part) => {
+        return total + part.cost;
+      }, 0);
     }
-    return parts.reduce((total, part) => {
+    return repair.Parts.reduce((total, part) => {
       return total + part.cost;
     }, 0);
   }
 
-  const partsTable = parts.map((part) => {
+  const partsTable = repair.Parts.map((part) => {
     return (
       <div className="part-row" key={part.id}>
         <div>
           <p className="part-name">
             <Link target="_blank" to={`/part/${part.id}`}>
-              {hasWarranty && part.replaced ? (
+              {repair.Warranty && part.replaced ? (
                 <span>
                   <del>{part.name}</del> <em>Replaced</em>
                 </span>
@@ -64,25 +93,23 @@ export default function Repair({ match }) {
                 part.name
               )}
             </Link>
-            {repairStatus === "ongoing" ? (
+            {repair.status.toLowerCase() === "ongoing" ? (
               <span
                 className={`delete float-right ${
-                  hasWarranty && part.dateAdded < warranty.dateAdded
+                  repair.Warranty && part.dateAdded < repair.Warranty.dateAdded
                     ? "delete-disabled"
                     : ""
                 }`}
                 id={part.id}
                 onClick={(e) => {
-                  setParts(
-                    parts.filter((aPart) => aPart.id !== parseInt(e.target.id))
-                  );
+                  // Remove part with id === e.target.id
                 }}
               >
                 ×
               </span>
             ) : null}
             <span className="float-right">
-              {!hasWarranty || part.dateAdded < warranty.dateAdded
+              {repair.Warranty || part.dateAdded < repair.Warranty.dateAdded
                 ? `$${part.cost}`
                 : "no cost"}
             </span>
@@ -106,8 +133,8 @@ export default function Repair({ match }) {
           The warranty on this repair covers all parts listed below, effective
           until <b>June 21, 2021</b>.
         </p>
-        <p>Warranty price: ${costOfWarranty}</p>
-        {repairStatus === "delivered" ? (
+        <p>Warranty price: ${repair.Warranty ? repair.Warranty.cost : null}</p>
+        {repair.status.toLowerCase() === "delivered" ? (
           <Link
             className="button button-primary"
             to={`/repair/${match.params.id}/claimwarranty`}
@@ -127,7 +154,7 @@ export default function Repair({ match }) {
           The warranty on this repair covers all parts listed below, effective
           until <b>June 21, 2021</b>.
         </p>
-        <p>Warranty price: ${costOfWarranty}</p>
+        <p>Warranty price: ${repair.Warranty ? repair.Warranty.cost : null}</p>
       </div>
       <hr></hr>
     </React.Fragment>
@@ -161,7 +188,6 @@ export default function Repair({ match }) {
         className="button-primary"
         onClick={() => {
           setRepairStatus("complete");
-          window.scrollTo(0, 0);
         }}
       >
         Complete repair
@@ -175,7 +201,6 @@ export default function Repair({ match }) {
         className="button-primary"
         onClick={() => {
           setRepairStatus("delivered");
-          window.scrollTo(0, 0);
         }}
       >
         Mark as delivered
@@ -186,19 +211,19 @@ export default function Repair({ match }) {
     </React.Fragment>
   );
 
-  if (repairStatus === "ongoing" && hasWarranty) {
+  if (repair.status.toLowerCase() === "ongoing" && repair.Warranty) {
     warrantySection = warrantySection2;
     mainButtonSection = mainButtonSectionB;
-  } else if (repairStatus === "ongoing" && !hasWarranty) {
+  } else if (repair.status.toLowerCase() === "ongoing" && !repair.Warranty) {
     warrantySection = null;
     mainButtonSection = mainButtonSectionB;
-  } else if (repairStatus === "complete" && hasWarranty) {
+  } else if (repair.status.toLowerCase() === "complete" && repair.Warranty) {
     warrantySection = warrantySection1;
     mainButtonSection = mainButtonSectionC;
-  } else if (repairStatus === "complete" && !hasWarranty) {
+  } else if (repair.status.toLowerCase() === "complete" && !repair.Warranty) {
     warrantySection = warrantySection3;
     mainButtonSection = mainButtonSectionC;
-  } else if (repairStatus === "delivered" && hasWarranty) {
+  } else if (repair.status.toLowerCase() === "delivered" && repair.Warranty) {
     warrantySection = warrantySection1;
     mainButtonSection = mainButtonSectionA;
   } else {
@@ -211,26 +236,19 @@ export default function Repair({ match }) {
       <MenuBar />
       <div className="container">
         <header>
-          <button
-            className="button"
-            onClick={() => {
-              setHasWarranty(!hasWarranty);
-              setCostOfWarranty(costOfWarranty == "25.00" ? "0.00" : "25.00");
-            }}
-          >
-            Toggle Warranty (FOR TESTING PURPOSES ONLY)
-          </button>
           <h4>
             Repair #{match.params.id}{" "}
-            <span className={`status status-${repairStatus}`}>
-              {repairStatus}
+            <span className={`status status-${repair.status.toLowerCase()}`}>
+              {repair.status.toLowerCase()}
             </span>
           </h4>
           <h6>
-            <Link to="/customer/12">Joe Smith</Link>
+            <Link to={`/customer/${repair.Customer.id}`}>
+              {repair.Customer.name}
+            </Link>
           </h6>
-          <h6>Apple iPhone Xs</h6>
-          <h6>Started Jul. 6 2020</h6>
+          <h6>{repair.Device.model}</h6>
+          <h6>Started {repair.startDate}</h6>
         </header>
         <hr></hr>
         {warrantySection}
@@ -238,7 +256,7 @@ export default function Repair({ match }) {
           <div className="eight columns">
             <h5>Parts</h5>
             {partsTable}
-            {repairStatus === "ongoing" ? (
+            {repair.status.toLowerCase() === "ongoing" ? (
               <Link to={`./${match.params.id}/selectpart`} className="button">
                 Add part
               </Link>
@@ -265,11 +283,13 @@ export default function Repair({ match }) {
               className="u-full-width"
               id="labourCost"
               placeholder="Enter cost of labour"
-              value={costOfLabour}
-              onChange={(e) => setCostOfLabour(e.target.value)}
+              value={repair.laborCost}
+              onChange={(e) => {
+                //set the cost of labour with time lag
+              }}
               disabled
-              {...(repairStatus === "ongoing" &&
-                !hasWarranty && { disabled: false })}
+              {...(repair.status.toLowerCase() === "ongoing" &&
+                !repair.Warranty && { disabled: false })}
             ></input>
           </div>
         </div>
@@ -280,8 +300,8 @@ export default function Repair({ match }) {
               Total cost: $
               {(
                 calculateCostOfParts() +
-                Number(costOfLabour) +
-                Number(costOfWarranty)
+                Number(repair.laborCost) +
+                Number(repair.Warranty ? repair.Warranty.cost : 0)
               ).toFixed(2)}
             </h5>
             {mainButtonSection}
