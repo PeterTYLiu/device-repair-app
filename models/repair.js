@@ -20,7 +20,7 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isDecimal: true,
+        isNumeric: true,
         min: 0.0,
       },
     },
@@ -29,7 +29,7 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 0.0,
       validate: {
-        isDecimal: true,
+        isNumeric: true,
         min: 0.0,
       },
     },
