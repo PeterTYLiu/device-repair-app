@@ -14,4 +14,18 @@ shopRouter.post('/signup', shops.create);
 
 shopRouter.get('/', isShopAuthenticated, shops.findShop);
 
+shopRouter.get('/customers', isShopAuthenticated, shops.findAllCustomers);
+
+shopRouter.post(
+  '/customers/:customerId',
+  isShopAuthenticated,
+  shops.addCustomer
+);
+
+shopRouter.get(
+  '/customers/shop',
+  isShopAuthenticated,
+  shops.findAllCustomersByShop
+);
+
 module.exports = shopRouter;
