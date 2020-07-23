@@ -43,7 +43,7 @@ module.exports = function (sequelize, DataTypes) {
       allowNull: false,
       defaultValue: 'ongoing',
       validate: {
-        isIn: [['ongoing', 'completed', 'delivered']],
+        isIn: [['ongoing', 'complete', 'delivered']],
       },
     },
   });
