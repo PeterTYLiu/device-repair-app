@@ -1,6 +1,5 @@
 const express = require('express');
-const { Device } = require('../models');
-const { Repair } = require('../models');
+const { Device, Repair, Manufacturer } = require('../models');
 
 module.exports = {
   create: async function (req, res) {
@@ -15,7 +14,9 @@ module.exports = {
   // get shop details
   find: async function (req, res) {
     try {
-      const existingDevice = await Device.findByPk(req.user.id);
+      const existingDevice = await Device.findByPk(req.params.deviceId, {
+        include: [{ model: Manufacturer }],
+      });
       if (existingDevice === null) {
         res.sendStatus(404);
       } else {
@@ -28,12 +29,36 @@ module.exports = {
 
   findAll: async function (req, res) {
     try {
-      const existingDevices = await Device.findAll();
+      const existingDevices = await Device.findAll({
+        include: [{ model: Manufacturer }],
+      });
       if (existingDevices === null) {
-        res.sendStatus(404);
+        res.json({ data: [] });
       } else {
         res.json({ data: existingDevices });
       }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  findAllManufacturers: async function (req, res) {
+    try {
+      const allManufacturers = await Manufacturer.findAll();
+      if (allManufacturers === null) {
+        res.json({ data: [] });
+      } else {
+        res.json({ data: allManufacturers });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  createManufacturer: async function (req, res) {
+    try {
+      const newManufacturer = await Manufacturer.create(req.body);
+      res.status(201).json(newManufacturer);
     } catch (error) {
       handleError(error, res);
     }
