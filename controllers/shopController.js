@@ -28,9 +28,62 @@ module.exports = Shop = {
       handleError(error, res);
     }
   },
+
+  addCustomer: async function (req, res) {
+    try {
+      const customerId = req.params.customerId;
+      const shopId = req.user.id;
+      const existingCustomer = await db.ShopCustomers.findOne({
+        where: { CustomerId: customerId, ShopId: shopId },
+      });
+      if (existingCustomer) {
+        res.status(200).json(existingCustomer);
+      } else {
+        const newCustomerForShop = await db.ShopCustomers.create({
+          CustomerId: customerId,
+          ShopId: shopId,
+        });
+        res.status(200).json(newCustomerForShop);
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  findAllCustomers: async function (req, res) {
+    try {
+      const existingCustomers = await db.Customer.findAll();
+      if (existingCustomers === null) {
+        res.json({ data: [] });
+      } else {
+        res.json({ data: existingCustomers });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
+  findAllCustomersByShop: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const existingCustomersForShop = await db.Customer.findAll({
+        attributes: ['id', 'email', 'name'],
+        include: [
+          { model: db.Shop, where: { id: shopId }, attributes: ['id', 'name'] },
+        ],
+      });
+      if (existingCustomersForShop === null) {
+        res.json({ data: [] });
+      } else {
+        res.json({ data: existingCustomersForShop });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
 };
 
 function handleError(error, res) {
-  console.log(error);
-  res.status(500).json({ message: error });
+  const { name } = error;
+  res.status(500).json({ message: name ? name : error });
 }
