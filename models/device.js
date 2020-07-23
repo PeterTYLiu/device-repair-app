@@ -1,13 +1,17 @@
 module.exports = function (sequelize, DataTypes) {
   const Device = sequelize.define('Device', {
-    manufacturer: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     model: {
       type: DataTypes.STRING,
       allowNull: false,
     },
   });
+
+  Device.associate = function (models) {
+    Device.belongsTo(models.Manufacturer, {
+      foreignKey: {
+        allowNull: false,
+      },
+    });
+  };
   return Device;
 };

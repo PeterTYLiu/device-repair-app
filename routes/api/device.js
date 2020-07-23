@@ -6,8 +6,12 @@ deviceRouter.use(isShopAuthenticated);
 
 deviceRouter.post('/', device.create);
 
-deviceRouter.get('/', device.find);
+deviceRouter.get('/:deviceId', device.find);
 
-deviceRouter.get('/all', device.findAll);
+deviceRouter.get('/', device.findAll);
+
+deviceRouter.get('/manufacturers', device.findAllManufacturers);
+
+deviceRouter.post('/manufacturers', device.createManufacturer);
 
 module.exports = deviceRouter;
