@@ -1,21 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import MenuBar from "../components/MenuBar";
+import React, { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    (async () => {
+      let myShopRepairs = await fetch("/api/repairs");
+      if (myShopRepairs.status === 200) {
+        return (window.location = "/repairs");
+      }
+      return (window.location = "/login");
+    })();
+  }, []);
+
   return (
-    <React.Fragment>
-      <MenuBar />
-      <div className="container">
-        <h4>Dashboard</h4>
-        <Link to="/newrepair/customer" className="button button-primary">
-          New repair
-        </Link>
-        <br />
-        <Link to="/newrepair/customer" className="button button-primary">
-          New part
-        </Link>
-      </div>
-    </React.Fragment>
+    <p>
+      Please wait for the redirect, or go to <a href="/login">the login page</a>
+    </p>
   );
 }

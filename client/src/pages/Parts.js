@@ -91,7 +91,7 @@ export default function Parts() {
       <div className="container">
         <ButtonHeader
           title="Parts"
-          buttonLink="/newpart"
+          buttonLink="/addpart"
           buttonText="Add part"
         />
 

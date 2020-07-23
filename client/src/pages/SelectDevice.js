@@ -3,28 +3,78 @@ import deviceList from "../deviceList.json";
 import Continue from "../components/Continue";
 
 export default function SelectDevice() {
-  const [device, setDevice] = useState({
-    manufacturer: "",
-    model: "",
-    id: "",
-  });
+  const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [manufacturers, setManufacturers] = useState([]);
+  const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
+  const [devices, setDevices] = useState([]);
+  const [customerId, setCustomerId] = useState("");
 
   useEffect(() => {
-    console.log(device);
-  }, [device]);
+    // Set customer ID from URL
+    let urlParams = new URLSearchParams(window.location.search);
+    setCustomerId(urlParams.get("customer"));
+  }, []);
 
-  let filteredDevices = Object.values(deviceList)
-    .filter((myDevice) => myDevice.manufacturer === device.manufacturer)
-    .sort()
-    .map((aDevice) => (
-      <option
-        data-model={aDevice.model.toLowerCase().split(" ").join("-")}
-        key={aDevice.id}
-        value={aDevice.id}
-      >
-        {aDevice.model}
+  useEffect(() => {
+    (async () => {
+      // Populate all devices
+      let allDevicesResponse = await fetch("/api/devices");
+      if (allDevicesResponse.status === 401)
+        return (window.location = "/login");
+      if (allDevicesResponse.status === 200) {
+        let data = await allDevicesResponse.json();
+        console.log(Object.values(data.data));
+        setDevices(Object.values(data.data));
+      }
+      // Populate all manufacturers
+      let allManusResponse = await fetch("/api/devices/manufacturers/all");
+      if (allManusResponse.status === 200) {
+        let data = await allManusResponse.json();
+        console.log(data.data);
+        setManufacturers(data.data);
+      }
+    })();
+  }, []);
+
+  const createRepair = async () => {
+    let response = await fetch("/api/repairs", {
+      method: "POST",
+      body: JSON.stringify({
+        repairCustomerId: customerId,
+        repairShopId: 1,
+        DeviceId: selectedDeviceId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 401) return (window.location = "/login");
+
+    if (response.status === 201) {
+      let data = await response.json();
+      return (window.location = "/repair/" + data.id);
+    }
+    alert("Failed to create a repair");
+  };
+
+  let deviceOptions = devices
+    .filter(({ ManufacturerId }) => {
+      if (selectedManufacturerId)
+        return ManufacturerId == selectedManufacturerId;
+      return ManufacturerId;
+    })
+    .map(({ model, id }) => (
+      <option data-model={model} key={id} value={id}>
+        {model}
       </option>
     ));
+
+  let manufacturerOptions = manufacturers.map(({ name, id }) => (
+    <option key={id} value={id}>
+      {name}
+    </option>
+  ));
 
   return (
     <div className="container">
@@ -37,18 +87,15 @@ export default function SelectDevice() {
             className="u-full-width"
             id="manufacturer"
             onChange={(e) => {
-              setDevice({ manufacturer: e.target.value, model: "", id: "" });
+              setSelectedManufacturerId(e.target.value);
+              setSelectedDeviceId("");
             }}
-            value={device.manufacturer}
+            value={selectedManufacturerId}
           >
             <option value="" disabled hidden>
               Choose a manufacturer
             </option>
-            <option value="apple">Apple</option>
-            <option value="samsung">Samsung</option>
-            <option value="lg">LG</option>
-            <option value="motorola">Motorola</option>
-            <option value="oneplus">OnePlus</option>
+            {manufacturerOptions}
           </select>
         </div>
       </div>
@@ -58,32 +105,26 @@ export default function SelectDevice() {
           <select
             className="u-full-width"
             id="model"
-            value={device.id}
-            {...(device.manufacturer === "" && { disabled: true })}
+            value={selectedDeviceId}
+            {...(selectedManufacturerId === "" && { disabled: true })}
             onChange={(e) => {
-              setDevice({
-                ...device,
-                id: e.target.value,
-                model: Object.values(deviceList).find(
-                  (aDevice) => aDevice.id === e.target.value
-                ).model,
-              });
+              setSelectedDeviceId(e.target.value);
             }}
           >
             <option value="" disabled hidden>
               Choose a model
             </option>
-            {filteredDevices}
+            {deviceOptions}
           </select>
         </div>
       </div>
 
       <Continue
-        nextLink={`/repair/${device.id}`}
         nextText="Continue"
         backText="back"
         backLink="/newrepair/customer"
-        allowNext={device.id ? true : false}
+        allowNext={selectedDeviceId ? true : false}
+        onNext={createRepair}
       />
     </div>
   );

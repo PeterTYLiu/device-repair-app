@@ -186,6 +186,10 @@ export default function Login({ location }) {
           <p style={{ textAlign: "center" }}>
             No account?{" "}
             <Link to="/signup">Create&nbsp;a&nbsp;REPARRiT&nbsp;shop</Link>
+            <br />
+            <br />
+            Not a shop?{" "}
+            <Link to="/customerlogin">Sign&nbsp;in&nbsp;as&nbsp;customer</Link>
           </p>
         </div>
       </div>

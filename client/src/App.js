@@ -4,6 +4,7 @@ import SelectDevice from "./pages/SelectDevice";
 import SelectCustomer from "./pages/SelectCustomer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import CustomerLogin from "./pages/CustomerLogin";
 import Signup from "./pages/Signup";
 import Repair from "./pages/Repair";
 import Customer from "./pages/Customer";
@@ -13,6 +14,7 @@ import Parts from "./pages/Parts";
 import Repairs from "./pages/Repairs";
 import SelectPart from "./pages/SelectPart";
 import AddWarranty from "./pages/AddWarranty";
+import AddPart from "./pages/AddPart";
 import ClaimWarranty from "./pages/ClaimWarranty";
 
 function App() {
@@ -21,6 +23,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
+        <Route exact path="/customerlogin" component={CustomerLogin} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/repairs" component={Repairs} />
         <Route exact path="/newrepair/customer" component={SelectCustomer} />
@@ -28,6 +31,7 @@ function App() {
         <Route exact path="/repair/:id" component={Repair} />
         <Route exact path="/repair/:id/selectpart" component={SelectPart} />
         <Route exact path="/repair/:id/addwarranty" component={AddWarranty} />
+        <Route exact path="/addpart" component={AddPart} />
         <Route
           exact
           path="/repair/:id/claimwarranty"
