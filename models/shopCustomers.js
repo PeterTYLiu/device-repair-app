@@ -3,6 +3,7 @@ module.exports = function (sequelize, DataTypes) {
     lastWalkInDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       validate: {
         isDate: true,
       },
