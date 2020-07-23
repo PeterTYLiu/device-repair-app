@@ -8,7 +8,7 @@ export default function MenuBar() {
       <nav>
         <div className="container" style={{ display: "flex" }}>
           <div id="app-logo">
-            <Link to="/">
+            <Link to="/repairs">
               <span
                 role="img"
                 aria-label="our logo"
@@ -24,7 +24,6 @@ export default function MenuBar() {
           </div>
 
           <div className="nav-menu nav-menu-desktop">
-            <Link to="/repairs">Repairs</Link>
             <Link to="/customers">Customers</Link>
             <Link to="/parts">Parts</Link>
           </div>

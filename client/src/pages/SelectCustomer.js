@@ -4,16 +4,50 @@ import storeCustomers from "../storeCustomers.json";
 
 export default function SelectCustomer() {
   const [customerId, setCustomerId] = useState("");
-
+  const [myCustomers, setMyCustomers] = useState(Object.values(storeCustomers));
   const [newCustomer, setNewCustomer] = useState({ name: "", email: "" });
 
   useEffect(() => {
-    console.log("Customer ID: " + (customerId ? customerId : "none selected"));
-  }, [customerId]);
+    (async () => {
+      let myShopcustomers = await fetch("/api/shops/customers/shop");
+      if (myShopcustomers.status === 200) {
+        let responseBody = await myShopcustomers.json();
+        setMyCustomers(await responseBody.data);
+      }
+    })();
+  }, []);
 
-  useEffect(() => {
-    console.log(newCustomer);
-  }, [newCustomer]);
+  const handleSubmitCustomer = async () => {
+    if (newCustomer.name && newCustomer.email) {
+      let response = await fetch("/api/customers/signup", {
+        method: "POST",
+        body: JSON.stringify({
+          name: newCustomer.name,
+          email: newCustomer.email,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 401) return (window.location = "/login");
+
+      if (response.status === 201) {
+        let responseBody = await response.json();
+
+        let associateNewCustomerWithShopResponse = await fetch(
+          `/api/shops/customers/${responseBody.id}`,
+          { method: "POST" }
+        );
+
+        if (associateNewCustomerWithShopResponse.status === 200)
+          return (window.location =
+            "/newrepair/device?customer=" + responseBody.id);
+      }
+    }
+
+    window.location = "/newrepair/device?customer=" + customerId;
+  };
 
   let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
@@ -33,7 +67,7 @@ export default function SelectCustomer() {
             value={customerId}
           >
             <option value="">---</option>
-            {Object.values(storeCustomers).map((storeCustomer) => (
+            {myCustomers.map((storeCustomer) => (
               <option value={storeCustomer.id} key={storeCustomer.id}>
                 {storeCustomer.name}
               </option>
@@ -78,7 +112,7 @@ export default function SelectCustomer() {
       </div>
 
       <Continue
-        nextLink={`/newrepair/device`}
+        // nextLink={`/newrepair/device`}
         nextText="Continue"
         backText="Cancel"
         backLink="/"
@@ -86,6 +120,7 @@ export default function SelectCustomer() {
           customerId ||
           (newCustomer.name && newCustomer.email.match(emailRegex))
         }
+        onNext={handleSubmitCustomer}
       />
     </div>
   );

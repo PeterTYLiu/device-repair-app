@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
 import MenuBar from "../components/MenuBar";
 import ButtonHeader from "../components/ButtonHeader";
-import repairs from "../repairs.json";
 
 export default function Repairs() {
-  const unsortedRepairs = Object.values(repairs);
-  const [sortedRepairs, setSortedRepairs] = useState(unsortedRepairs);
+  const defaultRepair = [
+    {
+      id: 0,
+      startDate: "2000-00-00",
+      status: "ongoing",
+      Customer: {
+        name: "",
+      },
+      Device: {
+        model: "",
+      },
+    },
+  ];
+
+  const [sortedRepairs, setSortedRepairs] = useState(defaultRepair);
   const [filters, setFilters] = useState({
     sortBy: "",
     complete: true,
@@ -16,9 +28,12 @@ export default function Repairs() {
   useEffect(() => {
     (async () => {
       let myShopRepairs = await fetch("/api/repairs");
+      if (myShopRepairs.status === 401) return (window.location = "/login");
       if (myShopRepairs.status === 200) {
         let responseBody = await myShopRepairs.json();
-        setSortedRepairs(await responseBody.data);
+        let data = await responseBody.data;
+        setSortedRepairs(await data);
+        console.log(await data);
       }
     })();
   }, []);
@@ -32,28 +47,28 @@ export default function Repairs() {
   }
 
   let sortedRepairsTable = sortedRepairs
-    .filter(({ status }) => filters[status])
+    .filter(({ status }) => filters[status.toLowerCase()])
     .sort((a, b) => {
       if (a[filters.sortBy] < b[filters.sortBy]) return -1;
       return 1;
     })
-    .map(({ customer, id, device, status, startDate }) => {
+    .map((repair) => {
       return (
         <div
           className="repair-row"
-          key={id}
-          onClick={() => (window.location.href = `/repair/${id}`)}
+          key={repair.id}
+          onClick={() => (window.location.href = `/repair/${repair.id}`)}
         >
           <h5>
-            {device}
-            <span className={`status status-${status}`}>{status}</span>
-            <span style={{ color: "#999", float: "right" }}>#{id}</span>
+            {repair.Device.model}
+            <span className={`status status-${repair.status}`}>
+              {repair.status}
+            </span>
+            <span style={{ color: "#999", float: "right" }}>#{repair.id}</span>
           </h5>
           <p style={{ marginBottom: 0 }}>
-            {customer}
-            <span style={{ float: "right" }}>
-              Started: {startDate.substr(0, 10)}
-            </span>
+            {repair.Customer.name}
+            <span style={{ float: "right" }}>Started: {repair.startDate}</span>
           </p>
         </div>
       );
