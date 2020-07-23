@@ -10,7 +10,7 @@ deviceRouter.get('/:deviceId', device.find);
 
 deviceRouter.get('/', device.findAll);
 
-deviceRouter.get('/manufacturers', device.findAllManufacturers);
+deviceRouter.get('/manufacturers/all', device.findAllManufacturers);
 
 deviceRouter.post('/manufacturers', device.createManufacturer);
 
