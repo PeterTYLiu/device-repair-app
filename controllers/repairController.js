@@ -103,8 +103,10 @@ module.exports = {
       const shopId = req.user.id;
       const updatedLaborCost = req.body.laborCost;
       const customerRepair = req.params.repair;
-      customerRepair.laborCost = req.body.laborCost;
-      customerRepair.totalPrice += req.body.laborCost;
+      customerRepair.laborCost = parseFloat(req.body.laborCost);
+      customerRepair.totalPrice = parseFloat(customerRepair.totalPrice);
+      const difference = customerRepair.laborCost - customerRepair.totalPrice;
+      customerRepair.totalPrice = customerRepair.totalPrice + difference;
       await customerRepair.save({ fields: ['laborCost', 'totalPrice'] });
       await customerRepair.reload();
       res.json({ data: customerRepair });
