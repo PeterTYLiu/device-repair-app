@@ -1,7 +1,8 @@
 const customerRouter = require('express').Router();
 const passport = require('passport');
 const customer = require('../../controllers/customerController');
-const isShopAuthenticated = require('../../config/middleware/isAuthenticatedCustomer');
+const isCustomerAuthenticated = require('../../config/middleware/isAuthenticatedCustomer');
+const isShopAuthenticated = require('../../config/middleware/isAuthenticatedShop');
 
 customerRouter.post('/login', passport.authenticate('cutomer-local'), function (
   req,
@@ -10,8 +11,8 @@ customerRouter.post('/login', passport.authenticate('cutomer-local'), function (
   res.json(req.user);
 });
 
-customerRouter.post('/signup', customer.create);
+customerRouter.post('/signup', isShopAuthenticated, customer.create);
 
-customerRouter.get('/', isShopAuthenticated, customer.find);
+customerRouter.get('/', isCustomerAuthenticated, customer.find);
 
 module.exports = customerRouter;
