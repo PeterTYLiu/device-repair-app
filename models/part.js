@@ -15,6 +15,13 @@ module.exports = function (sequelize, DataTypes) {
         isNumeric: true,
       },
     },
+    supplierName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [2],
+      },
+    },
   });
 
   // Define Associations here
@@ -26,7 +33,11 @@ module.exports = function (sequelize, DataTypes) {
       },
     });
     Part.belongsToMany(models.Repair, { through: 'RepairParts' });
-    Part.belongsTo(models.Supplier);
+    Part.belongsTo(models.Supplier, {
+      foreignKey: {
+        allowNull: true,
+      },
+    });
     Part.belongsTo(models.Shop);
   };
 
