@@ -80,6 +80,23 @@ module.exports = {
       handleError(error, res);
     }
   },
+  findByCustomer: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const customerId = req.params.customerId;
+      const customerRepairs = await Repair.findAll({
+        where: { repairShopId: shopId, repairCustomerId: customerId },
+        include: [{ model: Customer }, { model: Part }, { model: Device }],
+      });
+      if (customerRepairs === null) {
+        res.json({ data: [] });
+      } else {
+        res.json({ data: customerRepairs });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
   update: async function (req, res) {
     try {
       const shopId = req.user.id;
