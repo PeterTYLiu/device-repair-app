@@ -76,6 +76,7 @@ module.exports = {
         attributes: [
           [db.Sequelize.fn('DISTINCT', db.Sequelize.col('name')), 'partname'],
           'DeviceId',
+          'supplierName',
         ],
         where: { ShopId: shopId, DeviceId: deviceId },
       });
