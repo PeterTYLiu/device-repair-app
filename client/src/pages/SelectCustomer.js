@@ -115,7 +115,7 @@ export default function SelectCustomer() {
         // nextLink={`/newrepair/device`}
         nextText="Continue"
         backText="Cancel"
-        backLink="/"
+        backLink="/repairs"
         allowNext={
           customerId ||
           (newCustomer.name && newCustomer.email.match(emailRegex))

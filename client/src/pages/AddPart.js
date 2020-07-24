@@ -4,30 +4,98 @@ import deviceList from "../deviceList.json";
 import manufacturers from "../manufacturers.json";
 
 export default function AddPart() {
-  const [selectedDevice, setSelectedDevice] = useState({
-    deviceId: "",
-    manufacturerId: "",
-  });
-  const [existingPart, setExistingPart] = useState({ name: "", cost: "" });
+  const [manufacturers, setManufacturers] = useState([]);
+  const [selectedManufacturerId, setSelectedManufacturerId] = useState("");
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState("");
+
   const [pageMode, setPageMode] = useState("New batch of existing part");
-  const [newPart, setNewPart] = useState({
+
+  const [partsForSelectedDevice, setPartsForSelectedDevice] = useState([]);
+  const [partToAdd, setPartToAdd] = useState({
     name: "",
     supplier: "",
     cost: "",
   });
 
-  function toggleStatusFilter({ target }) {
+  function toggleMode({ target }) {
     if (pageMode !== target.innerText) {
-      setNewPart({
+      setPartToAdd({
         name: "",
         supplier: "",
         cost: "",
       });
-      setExistingPart({ name: "", cost: "" });
     }
 
     setPageMode(target.innerText);
   }
+
+  // Get devices and manufacturers on page load
+  useEffect(() => {
+    (async () => {
+      // Populate all devices
+      let allDevicesResponse = await fetch("/api/devices");
+      if (allDevicesResponse.status === 401)
+        return (window.location = "/login");
+      if (allDevicesResponse.status === 200) {
+        let data = await allDevicesResponse.json();
+        console.log(Object.values(data.data));
+        setDevices(Object.values(data.data));
+      }
+      // Populate all manufacturers
+      let allManusResponse = await fetch("/api/devices/manufacturers/all");
+      if (allManusResponse.status === 200) {
+        let data = await allManusResponse.json();
+        console.log(data.data);
+        setManufacturers(data.data);
+      }
+    })();
+  }, []);
+
+  // Populate unique parts for the selected device
+  useEffect(() => {
+    if (selectedDeviceId) {
+      (async () => {
+        let devicePartsResponse = await fetch(
+          `/api/parts/device/${selectedDeviceId}/partnames`
+        );
+        if (devicePartsResponse.status === 200) {
+          let data = await devicePartsResponse.json();
+          console.log(data.data);
+          setPartsForSelectedDevice(Object.values(data.data));
+        }
+      })();
+    } else {
+      setPartsForSelectedDevice([]);
+    }
+  }, [selectedDeviceId]);
+
+  // Create <option>s from devices
+  let deviceOptions = devices
+    .filter(({ ManufacturerId }) => {
+      if (selectedManufacturerId)
+        return ManufacturerId == selectedManufacturerId;
+      return ManufacturerId;
+    })
+    .map(({ model, id }) => (
+      <option data-model={model} key={id} value={id}>
+        {model}
+      </option>
+    ));
+
+  // Create <option>s from manufacturers
+  let manufacturerOptions = manufacturers.map(({ name, id }) => (
+    <option key={id} value={id}>
+      {name}
+    </option>
+  ));
+
+  // Create <option>s from parts
+  let existingPartOptions = partsForSelectedDevice.map(
+    ({ partname, supplierName }) => (
+      <option value={`${partname}+++${supplierName}`}>{partname}</option>
+    )
+  );
 
   const addExisting = (
     <React.Fragment>
@@ -35,19 +103,29 @@ export default function AddPart() {
       <select
         className="u-full-width"
         id="part"
-        value={existingPart.name}
+        value={partToAdd.name}
         onChange={({ target }) => {
-          setExistingPart({ ...existingPart, name: target.value });
+          let values = target.value.split("+++");
+          setPartToAdd({
+            ...partToAdd,
+            name: values[0],
+            supplier: values[1],
+          });
         }}
-      ></select>
+      >
+        <option value="" disabled hidden>
+          Choose a part
+        </option>
+        {existingPartOptions}
+      </select>
       <label>Unit cost for this batch</label>
       <input
         type="number"
         className="u-full-width"
         id="unitcost"
-        value={existingPart.cost}
+        value={partToAdd.cost}
         onChange={({ target }) => {
-          setExistingPart({ ...existingPart, cost: target.value });
+          setPartToAdd({ ...partToAdd, cost: target.value });
         }}
       />
     </React.Fragment>
@@ -60,9 +138,9 @@ export default function AddPart() {
         type="text"
         className="u-full-width"
         id="partname"
-        value={newPart.name}
+        value={partToAdd.name}
         onChange={({ target }) => {
-          setNewPart({ ...newPart, name: target.value });
+          setPartToAdd({ ...partToAdd, name: target.value });
         }}
       />
       <label>Supplier name</label>
@@ -70,9 +148,9 @@ export default function AddPart() {
         type="text"
         className="u-full-width"
         id="manufacturername"
-        value={newPart.supplier}
+        value={partToAdd.supplier}
         onChange={({ target }) => {
-          setNewPart({ ...newPart, supplier: target.value });
+          setPartToAdd({ ...partToAdd, supplier: target.value });
         }}
       />
       <label>Unit cost for this batch</label>
@@ -80,16 +158,28 @@ export default function AddPart() {
         type="number"
         className="u-full-width"
         id="unitcost"
-        value={newPart.cost}
+        value={partToAdd.cost}
         onChange={({ target }) => {
-          setNewPart({ ...newPart, cost: target.value });
+          setPartToAdd({ ...partToAdd, cost: target.value });
         }}
       />
     </React.Fragment>
   );
 
   const handleCreatePart = async () => {
-    console.log("foo");
+    let response = await fetch("/api/parts", {
+      method: "POST",
+      body: JSON.stringify({
+        name: partToAdd.name,
+        DeviceId: selectedDeviceId,
+        supplierName: partToAdd.supplier,
+        price: partToAdd.cost,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status === 201) return (window.location = "/parts");
   };
 
   return (
@@ -97,48 +187,39 @@ export default function AddPart() {
       <h4>Add part for a device</h4>
       <div className="row">
         <div className="six columns">
-          <label>Manufacturer</label>
+          <label htmlFor="manufacturer">Manufacturer</label>
           <select
             className="u-full-width"
             id="manufacturer"
             onChange={(e) => {
-              setSelectedDevice({
-                deviceId: "",
-                manufacturerId: e.target.value,
-              });
+              setSelectedManufacturerId(e.target.value);
+              setSelectedDeviceId("");
             }}
-            value={selectedDevice.manufacturer}
+            value={selectedManufacturerId}
           >
-            <option value="">---</option>
-            {Object.values(manufacturers).map((manufacturer) => (
-              <option value={manufacturer.id} key={manufacturer.id}>
-                {manufacturer.name}
-              </option>
-            ))}
+            <option value="" disabled hidden>
+              Choose a manufacturer
+            </option>
+            {manufacturerOptions}
           </select>
-          <label>Model</label>
+        </div>
+      </div>
+      <div className="row">
+        <div className="six columns">
+          <label htmlFor="model">Model</label>
           <select
             className="u-full-width"
-            id="existingPartDevice"
+            id="model"
+            value={selectedDeviceId}
+            {...(selectedManufacturerId === "" && { disabled: true })}
             onChange={(e) => {
-              setSelectedDevice({
-                ...selectedDevice,
-                deviceId: e.target.value,
-              });
+              setSelectedDeviceId(e.target.value);
             }}
-            value={selectedDevice.deviceId}
           >
-            {Object.values(deviceList)
-              .filter(
-                (device) =>
-                  device.manufacturerId ==
-                  parseInt(selectedDevice.manufacturerId)
-              )
-              .map((device) => (
-                <option value={device.id} key={device.id}>
-                  {device.model}
-                </option>
-              ))}
+            <option value="" disabled hidden>
+              Choose a model
+            </option>
+            {deviceOptions}
           </select>
 
           <div className="radio-buttons">
@@ -146,13 +227,13 @@ export default function AddPart() {
               className={
                 pageMode === "New batch of existing part" ? "active" : ""
               }
-              onClick={toggleStatusFilter}
+              onClick={toggleMode}
             >
               New batch of existing part
             </div>
             <div
               className={pageMode === "New part" ? "active" : ""}
-              onClick={toggleStatusFilter}
+              onClick={toggleMode}
             >
               New part
             </div>
@@ -167,14 +248,10 @@ export default function AddPart() {
       </div>
 
       <Continue
-        nextLink="/parts"
         nextText="Add part"
         backText="Cancel"
         backLink="/"
-        allowNext={
-          (existingPart.name && existingPart.cost) ||
-          (newPart.name && newPart.cost && newPart.supplier)
-        }
+        allowNext={partToAdd.name && partToAdd.cost && partToAdd.supplier}
         onNext={handleCreatePart}
       />
     </div>
