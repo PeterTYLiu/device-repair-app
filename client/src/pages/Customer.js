@@ -1,39 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import MenuBar from "../components/MenuBar";
 import ButtonHeader from "../components/ButtonHeader";
-import customers from "../storeCustomers.json";
 
 export default function Customer({ match }) {
-  const customerRepairs = [
-    {
-      id: 157,
-      device: "OnePlus 8 Pro",
-      startDate: "2020-05-29T18:25:43-05:00",
-      status: "ongoing",
-      cost: 105.5,
-    },
-    {
-      id: 98,
-      device: "Blackberry Key2",
-      startDate: "2019-04-12T18:25:43-05:00",
-      status: "delivered",
-      cost: 170.25,
-    },
-    {
-      id: 34,
-      device: "iPhone 5s",
-      startDate: "2016-11-25T18:25:43-05:00",
-      status: "delivered",
-      cost: 85.9,
-    },
-  ];
+  const [customerName, setCustomerName] = useState("");
+  const [repairs, setRepairs] = useState([]);
 
-  let sortedRepairsTable = customerRepairs
+  // Populate all repairs from this customer in my shop
+  useEffect(() => {
+    (async () => {
+      let repairsResponse = await fetch(
+        `/api/repairs/customer/${match.params.id}`
+      );
+      if (repairsResponse.status === 401) return (window.location = "/login");
+      if (repairsResponse.status === 200) {
+        let repairsBody = await repairsResponse.json();
+        setRepairs(repairsBody.data);
+        setCustomerName(repairsBody.data[0].Customer.name);
+      }
+    })();
+  }, []);
+
+  let sortedRepairsTable = repairs
     .sort((a, b) => {
       if (a.startDate > b.startDate) return -1;
       return 1;
     })
-    .map(({ cost, id, device, status, startDate }) => {
+    .map(({ totalPrice, id, Device, status, startDate }) => {
       return (
         <div
           className="repair-row"
@@ -41,15 +34,13 @@ export default function Customer({ match }) {
           onClick={() => (window.location.href = `/repair/${id}`)}
         >
           <h5>
-            {device}
+            {Device.model}
             <span className={`status status-${status}`}>{status}</span>
             <span style={{ color: "#999", float: "right" }}>#{id}</span>
           </h5>
           <p style={{ marginBottom: 0 }}>
-            ${cost.toFixed(2)}
-            <span style={{ float: "right" }}>
-              Started: {startDate.substr(0, 10)}
-            </span>
+            ${totalPrice}
+            <span style={{ float: "right" }}>Started: {startDate}</span>
           </p>
         </div>
       );
@@ -60,7 +51,7 @@ export default function Customer({ match }) {
       <MenuBar />
       <div className="container">
         <ButtonHeader
-          title={customers[match.params.id].name}
+          title={customerName}
           buttonLink="/"
           buttonText="New repair"
           subtitle={"Customer #" + match.params.id}
