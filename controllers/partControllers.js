@@ -60,7 +60,27 @@ module.exports = {
         where: { ShopId: shopId, DeviceId: deviceId },
       });
       if (existingParts === null) {
-        res.sendStatus(404);
+        res.json({ data: [] });
+      } else {
+        res.json({ data: existingParts });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+  findPartNamesForDevice: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const deviceId = req.params.id;
+      const existingParts = await Part.findAll({
+        attributes: [
+          [db.Sequelize.fn('DISTINCT', db.Sequelize.col('name')), 'partname'],
+          'DeviceId',
+        ],
+        where: { ShopId: shopId, DeviceId: deviceId },
+      });
+      if (existingParts === null) {
+        res.json({ data: [] });
       } else {
         res.json({ data: existingParts });
       }
