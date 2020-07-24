@@ -35,6 +35,26 @@ export default function Repair({ match }) {
     Warranty: null,
   };
 
+  const [repair, setRepair] = useState(defaultRepair);
+  const [notes, setNotes] = useState("");
+  const [makeNotesApiCall, setMakeNotesApiCall] = useState(false);
+
+  let updateRepairFromApi = async () => {
+    let repairResponse = await fetch("/api/repairs/" + match.params.id);
+    if (repairResponse.status === 401) return (window.location = "/login");
+    if (repairResponse.status === 200) {
+      let repairBody = await repairResponse.json();
+      let repairData = repairBody.data;
+      // Set state based on repair data
+      setRepair(repairData);
+      setNotes(repairData.description);
+    }
+  };
+
+  useEffect(() => {
+    updateRepairFromApi();
+  }, []);
+
   const setRepairStatus = async (status) => {
     let response = await fetch(`/api/repairs/${repair.id}/updateStatus`, {
       method: "PATCH",
@@ -50,21 +70,6 @@ export default function Repair({ match }) {
       window.location.reload();
     }
   };
-
-  const [repair, setRepair] = useState(defaultRepair);
-
-  useEffect(() => {
-    (async () => {
-      let repairResponse = await fetch("/api/repairs/" + match.params.id);
-      if (repairResponse.status === 401) return (window.location = "/login");
-      if (repairResponse.status === 200) {
-        let repairBody = await repairResponse.json();
-        let repairData = repairBody.data;
-        // Set state based on repair data
-        setRepair(repairData);
-      }
-    })();
-  }, []);
 
   function calculateCostOfParts() {
     if (repair.Warranty) {
@@ -121,6 +126,52 @@ export default function Repair({ match }) {
       </div>
     );
   });
+
+  // Timer function for cost input
+  let costTypingTimer;
+  function handleCostChange(e) {
+    clearTimeout(costTypingTimer);
+    let newCost = e.target.value;
+    costTypingTimer = setTimeout(async () => {
+      let changeCostResponse = await fetch(
+        `/api/repairs/${repair.id}/updateCost`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            laborCost: newCost,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (changeCostResponse.status === 200) {
+        updateRepairFromApi();
+      }
+    }, 4000);
+  }
+
+  // Timer function for description input
+  let notesTypingTimer;
+  useEffect(() => {
+    if (makeNotesApiCall) {
+      setMakeNotesApiCall(false);
+      (async () => {
+        let changeNotesResponse = await fetch(
+          `/api/repairs/${repair.id}/updateNotes`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({
+              description: notes,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      })();
+    }
+  }, [makeNotesApiCall]);
 
   let warrantySection;
   let mainButtonSection;
@@ -270,6 +321,15 @@ export default function Repair({ match }) {
             <textarea
               className="u-full-width"
               placeholder="Enter some notes"
+              onChange={(e) => {
+                let newNotes = e.target.value;
+                setNotes(newNotes);
+                clearTimeout(notesTypingTimer);
+                notesTypingTimer = setTimeout(() => {
+                  setMakeNotesApiCall(true);
+                }, 3000);
+              }}
+              value={notes}
             ></textarea>
           </div>
         </div>
@@ -281,12 +341,8 @@ export default function Repair({ match }) {
               type="number"
               min="0"
               className="u-full-width"
-              id="labourCost"
-              placeholder="Enter cost of labour"
-              value={repair.laborCost}
-              onChange={(e) => {
-                //set the cost of labour with time lag
-              }}
+              placeholder={repair.laborCost}
+              onChange={handleCostChange}
               disabled
               {...(repair.status.toLowerCase() === "ongoing" &&
                 !repair.Warranty && { disabled: false })}
