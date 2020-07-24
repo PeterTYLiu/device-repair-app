@@ -11,6 +11,8 @@ repairsRouter.post('/', repairs.create);
 // Returns suppliers for currently signed in shop
 repairsRouter.get('/', repairs.findByShop);
 
+repairsRouter.get('/customer/:customerId', repairs.findByCustomer);
+
 repairsRouter.get('/:id', repairs.find);
 
 repairsRouter.post(
