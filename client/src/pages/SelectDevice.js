@@ -97,10 +97,6 @@ export default function SelectDevice() {
             </option>
             {manufacturerOptions}
           </select>
-        </div>
-      </div>
-      <div className="row">
-        <div className="six columns">
           <label htmlFor="model">Model</label>
           <select
             className="u-full-width"
