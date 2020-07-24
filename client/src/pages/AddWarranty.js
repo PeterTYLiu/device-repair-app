@@ -1,9 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Continue from "../components/Continue";
 
 export default function AddWarranty({ match }) {
   const [warrantyPrice, setWarrantyPrice] = useState("");
   const [warrantyDuration, setWarrantyDuration] = useState(12);
+  const [repairPartsCost, setRepairPartsCost] = useState(0);
+
+  // Get the part costs from the repair on page load
+  useEffect(() => {
+    (async () => {
+      let repairResponse = await fetch("/api/repairs/" + match.params.id);
+      if (repairResponse.status === 401) return (window.location = "/login");
+      if (repairResponse.status === 200) {
+        let repairBody = await repairResponse.json();
+        let repairData = repairBody.data;
+        // Set state based on repair data
+        setRepairPartsCost(
+          repairData.Parts.reduce((total, part) => {
+            return total + Number(part.price);
+          }, 0)
+        );
+      }
+    })();
+  }, []);
+
+  const handleAddWarranty = async () => {
+    let currentDate = new Date().getTime();
+    let response = await fetch(`/api/repairs/${match.params.id}/addWarranty`, {
+      method: "POST",
+      body: JSON.stringify({
+        endDate: currentDate + warrantyDuration * 2628000000,
+        price: warrantyPrice,
+        duration: warrantyDuration,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status === 201)
+      return (window.location = `/repair/${match.params.id}`);
+  };
 
   return (
     <div className="container">
@@ -17,15 +53,21 @@ export default function AddWarranty({ match }) {
           <div>
             <h5>
               6 months
-              <span className="float-right">$17.25</span>
+              <span className="float-right">
+                ${(repairPartsCost * 0.08).toFixed(2)}
+              </span>
             </h5>
             <h5>
               12 months
-              <span className="float-right">$26.92</span>
+              <span className="float-right">
+                ${(repairPartsCost * 0.15).toFixed(2)}
+              </span>
             </h5>
             <h5>
               18 months
-              <span className="float-right">$38.01</span>
+              <span className="float-right">
+                ${(repairPartsCost * 0.28).toFixed(2)}
+              </span>
             </h5>
             <a
               href="https://www.xlstat.com/en/solutions/features/ordinary-least-squares-regression-ols"
@@ -72,11 +114,11 @@ export default function AddWarranty({ match }) {
       </div>
 
       <Continue
-        nextLink={`/repair/${match.params.id}`}
         nextText="Add warranty"
         backText="back"
         backLink={`/repair/${match.params.id}`}
         allowNext={warrantyPrice ? true : false}
+        onNext={handleAddWarranty}
       />
     </div>
   );

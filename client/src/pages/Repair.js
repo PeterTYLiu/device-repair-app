@@ -32,11 +32,12 @@ export default function Repair({ match }) {
       updatedAt: "2020-07-23T04:05:59.000Z",
       ManufacturerId: 2,
     },
-    Warranty: null,
+    Warranty: { price: 12.5 },
   };
 
   const [repair, setRepair] = useState(defaultRepair);
   const [notes, setNotes] = useState("");
+  const [costOfParts, setCostOfParts] = useState(0);
   const [makeNotesApiCall, setMakeNotesApiCall] = useState(false);
 
   let updateRepairFromApi = async () => {
@@ -55,6 +56,27 @@ export default function Repair({ match }) {
     updateRepairFromApi();
   }, []);
 
+  useEffect(() => {
+    let newCostOfParts;
+
+    if (repair.Warranty) {
+      newCostOfParts = repair.Parts.filter((part) => {
+        return (
+          Date.parse(part.RepairParts.createdAt) <
+          Date.parse(repair.Warranty.createdAt)
+        );
+      }).reduce((total, part) => total + parseFloat(part.price), 0);
+    } else {
+      newCostOfParts = repair.Parts.reduce(
+        (total, part) => total + parseFloat(part.price),
+        0
+      );
+    }
+
+    console.log(newCostOfParts);
+    setCostOfParts(Number(newCostOfParts));
+  }, [repair]);
+
   const setRepairStatus = async (status) => {
     let response = await fetch(`/api/repairs/${repair.id}/updateStatus`, {
       method: "PATCH",
@@ -71,18 +93,16 @@ export default function Repair({ match }) {
     }
   };
 
-  function calculateCostOfParts() {
-    if (repair.Warranty) {
-      return repair.Parts.filter(
-        (part) => part.dateAdded < repair.Warranty.dateAdded
-      ).reduce((total, part) => {
-        return total + part.cost;
-      }, 0);
-    }
-    return repair.Parts.reduce((total, part) => {
-      return total + part.cost;
-    }, 0);
-  }
+  const handleRemovePart = async (e) => {
+    let removingPartId = e.target.id;
+    let response = await fetch(
+      `/api/repairs/${repair.id}/removePart/${removingPartId}`,
+      {
+        method: "POST",
+      }
+    );
+    if (response.status === 200) updateRepairFromApi();
+  };
 
   const partsTable = repair.Parts.map((part) => {
     return (
@@ -90,7 +110,7 @@ export default function Repair({ match }) {
         <div>
           <p className="part-name">
             <Link target="_blank" to={`/part/${part.id}`}>
-              {repair.Warranty && part.replaced ? (
+              {part.RepairParts.replaced ? (
                 <span>
                   <del>{part.name}</del> <em>Replaced</em>
                 </span>
@@ -101,21 +121,23 @@ export default function Repair({ match }) {
             {repair.status.toLowerCase() === "ongoing" ? (
               <span
                 className={`delete float-right ${
-                  repair.Warranty && part.dateAdded < repair.Warranty.dateAdded
+                  repair.Warranty &&
+                  Date.parse(part.RepairParts.createdAt) <
+                    Date.parse(repair.Warranty.createdAt)
                     ? "delete-disabled"
                     : ""
                 }`}
                 id={part.id}
-                onClick={(e) => {
-                  // Remove part with id === e.target.id
-                }}
+                onClick={handleRemovePart}
               >
                 ×
               </span>
             ) : null}
             <span className="float-right">
-              {repair.Warranty || part.dateAdded < repair.Warranty.dateAdded
-                ? `$${part.cost}`
+              {!repair.Warranty ||
+              Date.parse(part.RepairParts.createdAt) <
+                Date.parse(repair.Warranty.createdAt)
+                ? `$${part.price}`
                 : "no cost"}
             </span>
           </p>
@@ -182,9 +204,9 @@ export default function Repair({ match }) {
         <h5>Warranty</h5>
         <p>
           The warranty on this repair covers all parts listed below, effective
-          until <b>June 21, 2021</b>.
+          until <b>{repair.Warranty ? repair.Warranty.endDate : null}</b>.
         </p>
-        <p>Warranty price: ${repair.Warranty ? repair.Warranty.cost : null}</p>
+        <p>Warranty price: ${repair.Warranty ? repair.Warranty.price : null}</p>
         {repair.status.toLowerCase() === "delivered" ? (
           <Link
             className="button button-primary"
@@ -203,9 +225,9 @@ export default function Repair({ match }) {
         <h5>This device is undergoing a warranty claim.</h5>
         <p>
           The warranty on this repair covers all parts listed below, effective
-          until <b>June 21, 2021</b>.
+          until <b>{repair.Warranty ? repair.Warranty.endDate : null}</b>.
         </p>
-        <p>Warranty price: ${repair.Warranty ? repair.Warranty.cost : null}</p>
+        <p>Warranty price: ${repair.Warranty ? repair.Warranty.price : null}</p>
       </div>
       <hr></hr>
     </React.Fragment>
@@ -355,9 +377,9 @@ export default function Repair({ match }) {
             <h5>
               Total cost: $
               {(
-                calculateCostOfParts() +
+                costOfParts +
                 Number(repair.laborCost) +
-                Number(repair.Warranty ? repair.Warranty.cost : 0)
+                Number(repair.Warranty ? repair.Warranty.price : 0)
               ).toFixed(2)}
             </h5>
             {mainButtonSection}

@@ -1,8 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Continue from "../components/Continue";
 
 export default function ClaimWarranty({ match }) {
   const [claimedParts, setClaimedParts] = useState([]);
+  const [repairParts, setRepairParts] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      let repairResponse = await fetch("/api/repairs/" + match.params.id);
+      if (repairResponse.status === 401) return (window.location = "/login");
+      if (repairResponse.status === 200) {
+        let repairBody = await repairResponse.json();
+        let repairData = repairBody.data;
+        // Set state based on repair data
+        setRepairParts(repairData.Parts);
+      }
+    })();
+  }, []);
 
   function toggleFromClaimedParts(e) {
     let partId = e.target.value;
@@ -14,10 +28,84 @@ export default function ClaimWarranty({ match }) {
       foo.push(partId);
     }
     setClaimedParts(foo);
-    console.log(claimedParts);
-    console.log("length: " + claimedParts.length);
-    console.log(claimedParts.length > 0 ? true : false);
   }
+
+  // const handleClaimWarranty = async () => {
+  //   let setToOngoingResponse = await fetch(
+  //     `/api/repairs/${match.params.id}/updateStatus`,
+  //     {
+  //       method: "PATCH",
+  //       body: JSON.stringify({
+  //         status: "ongoing",
+  //       }),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     }
+  //   );
+  //   if (setToOngoingResponse.status === 200) {
+  //     let setClaimedWarrantyResponse = await fetch(
+  //       `/api/repairs/${match.params.id}/claimWarranty`,
+  //       {
+  //         method: "PATCH",
+  //         body: JSON.stringify({
+  //           partsToBeReplaced: claimedParts,
+  //         }),
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     if (setClaimedWarrantyResponse.status === 200)
+  //       return (window.location = `/repairs/${match.params.id}`);
+  //     alert("Something went wrong!");
+  //   }
+  // };
+
+  const handleClaimWarranty = async () => {
+    let setClaimedWarrantyResponse = await fetch(
+      `/api/repairs/${match.params.id}/claimWarranty`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          partsToBeReplaced: claimedParts,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (setClaimedWarrantyResponse.status === 200) {
+      let setToOngoingResponse = await fetch(
+        `/api/repairs/${match.params.id}/updateStatus`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            status: "ongoing",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (setToOngoingResponse.status === 200)
+        return (window.location = `/repair/${match.params.id}`);
+      alert("Something went wrong!");
+    }
+  };
+
+  let partsCheckboxes = repairParts.map((part) => {
+    return (
+      <div key={part.id}>
+        <input
+          type="checkbox"
+          value={part.id}
+          onClick={toggleFromClaimedParts}
+        />
+        <label className="checkbox-label">{part.name}</label>
+      </div>
+    );
+  });
 
   return (
     <div className="container">
@@ -27,27 +115,14 @@ export default function ClaimWarranty({ match }) {
           <p>Select the component(s) that need to be replaced</p>
         </div>
       </div>
-      <div className="checkbox-group">
-        <div>
-          <input type="checkbox" value="11" onClick={toggleFromClaimedParts} />
-          <label className="checkbox-label">iPhone Xs LCD display</label>
-        </div>
-        <div>
-          <input type="checkbox" value="22" onClick={toggleFromClaimedParts} />
-          <label className="checkbox-label">iPhone Xs back glass</label>
-        </div>
-        <div>
-          <input type="checkbox" value="33" onClick={toggleFromClaimedParts} />
-          <label className="checkbox-label">iPhone Xs battery</label>
-        </div>
-      </div>
+      <div className="checkbox-group">{partsCheckboxes}</div>
 
       <Continue
-        nextLink={`/repair/${match.params.id}`}
         nextText="Initiate claim"
         backText="back"
         backLink={`/repair/${match.params.id}`}
         allowNext={claimedParts.length}
+        onNext={handleClaimWarranty}
       />
     </div>
   );
