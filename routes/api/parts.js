@@ -9,6 +9,8 @@ partsRouter.post('/', parts.create);
 // Returns All the parts for current shop
 partsRouter.get('/', parts.findAll);
 
+partsRouter.get('/batches', parts.getAllBatches);
+
 // Returns All the parts for current shop and a particular DEVICE
 partsRouter.get('/device/:id', parts.findByDevice);
 

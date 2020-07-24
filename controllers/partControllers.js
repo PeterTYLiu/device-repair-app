@@ -50,6 +50,23 @@ module.exports = {
       handleError(error, res);
     }
   },
+  getAllBatches: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const partName = req.body.partName;
+      const existingParts = await Part.findAll({
+        include: [{ model: Device }],
+        where: { ShopId: shopId, name: partName },
+      });
+      if (existingParts === null) {
+        res.sendStatus({ date: [] });
+      } else {
+        res.json({ data: existingParts });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
 
   findByDevice: async function (req, res) {
     try {
