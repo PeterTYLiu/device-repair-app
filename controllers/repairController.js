@@ -10,6 +10,7 @@ const {
   RepairPartReturn,
 } = require('../models');
 const warranties = require('./warrantyController');
+const sendEmail = require('../utils/emailUtil');
 
 module.exports = {
   create: async function (req, res) {
@@ -149,7 +150,12 @@ module.exports = {
       const customerRepair = req.params.repair;
       customerRepair.status = req.body.status;
       await customerRepair.save({ fields: ['status'] });
-      await customerRepair.reload();
+      await customerRepair.reload({
+        include: [{ model: Device }, { model: Customer }, { model: Part }],
+      });
+      if (customerRepair.status === 'complete') {
+        await sendRepairCompletionUpdate(customerRepair, req.user);
+      }
       res.json({ data: customerRepair });
     } catch (error) {
       handleError(error, res);
@@ -248,6 +254,14 @@ module.exports = {
   },
 };
 
+async function sendRepairCompletionUpdate(customerRepair, shop) {
+  sendEmail({
+    to: customerRepair.Customer.email,
+    subject: `Your device ${customerRepair.Device.model} is ready for pickup`,
+    body: getRepairCompletedBody(customerRepair, shop),
+  });
+}
+
 async function incrementPartQuantityForRepair(repairPart, req, res) {
   const { repairId, partId, quantity = 1 } = req.params;
   await repairPart.increment(['quantity'], {
@@ -264,6 +278,30 @@ async function incrementRepairCostForAddedPart(partId, repair) {
   await repair.increment(['totalPrice'], {
     by: partPrice.dataValues.price,
   });
+}
+
+function getRepairCompletedBody(customerRepair, shop) {
+  // const partsInfo =
+  //   customerRepair.Parts.length > 0
+  //     ? `<p>Following parts were added/replaced in your device</p>
+  //         ${getPartDetailsForEmail(customerRepair.Parts)}`
+  //     : '';
+  return `<html>
+        <p>Dear ${customerRepair.Customer.name},</p>
+        <p>Your device  <b>${customerRepair.Device.model}</b> is ready for pickup at <b>${shop.name}</b></p>              
+        <p>Team REPARRiT</p>
+        </html>`;
+}
+
+function getPartDetailsForEmail(parts) {
+  let partDetail = '<p><b>PartName&nbsp;$nbsp;Price</b></p>';
+  parts.forEach(
+    (part) =>
+      (partDetail = partDetail.concat(
+        `${part.name}&nbsp;$nbsp;${part.price}</br>`
+      ))
+  );
+  return partDetail;
 }
 
 function handleError(error, res) {
