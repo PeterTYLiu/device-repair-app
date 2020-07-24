@@ -7,10 +7,12 @@ partsRouter.use(isShopAuthenticated);
 partsRouter.post('/', parts.create);
 
 // Returns All the parts for current shop
-partsRouter.get('/all', parts.findAll);
+partsRouter.get('/', parts.findAll);
 
 // Returns All the parts for current shop and a particular DEVICE
 partsRouter.get('/device/:id', parts.findByDevice);
+
+partsRouter.get('/device/:id/partnames', parts.findPartNamesForDevice);
 
 partsRouter.get('/:id', parts.find);
 
