@@ -79,7 +79,7 @@ module.exports = {
 
 function getNewCustomerEmailBody(newCustomer, shop) {
   return `<html>
-        <p>Dear ${newCustomer.name},</p><p>${shop.name} has made an account for you on <a href='http://localhost:3000/customerlogin'>REPARRiT</a>.</p> 
+        <p>Dear ${newCustomer.name},</p><p>${shop.name} has made an account for you on <a href='https://guarded-wildwood-28034.herokuapp.com/customerlogin'>REPARRiT</a>.</p> 
         Please use you email address to login to your account. Your password is \n <b> ${newCustomer.cleanPass}</b>
         <p>You may change your password later.</p>
         <p>Team REPARRiT</p>

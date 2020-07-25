@@ -309,7 +309,7 @@ function getRepairStartedBody(customerRepair, shop) {
   return `<html>
         <p>Dear ${customerRepair.Customer.name},</p>
         <p><b>${shop.name}</b> has started working on reparing your device <b>${customerRepair.Device.model}</b>.</p> 
-        <p>You can track the repair progress by logging into your <a href='http://localhost:3000/customerlogin'>REPARRiT</a> account</p>
+        <p>You can track the repair progress by logging into your <a href='https://guarded-wildwood-28034.herokuapp.com/customerlogin'>REPARRiT</a> account</p>
         <p>We will inform you when it's ready for pick up.</p>              
         <p>Team REPARRiT</p>
         </html>`;
