@@ -1,6 +1,6 @@
 const express = require('express');
 const { Customer } = require('../models');
-const { Repair } = require('../models');
+const { Repair, Part, Device } = require('../models');
 const sendEmail = require('../utils/emailUtil');
 
 module.exports = {
@@ -15,6 +15,22 @@ module.exports = {
         body: getNewCustomerEmailBody(newCustomer, shop),
       });
       res.status(201).json(newCustomer);
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+  getAllRepairs: async function (req, res) {
+    try {
+      const customerId = req.user.id;
+      const customerRepairs = await Repair.findAll({
+        where: { repairCustomerId: customerId },
+        include: [{ model: Customer }, { model: Part }, { model: Device }],
+      });
+      if (customerRepairs === null) {
+        res.json({ data: [] });
+      } else {
+        res.json({ data: customerRepairs });
+      }
     } catch (error) {
       handleError(error, res);
     }
