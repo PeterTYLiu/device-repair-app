@@ -15,4 +15,6 @@ customerRouter.post('/signup', isShopAuthenticated, customer.create);
 
 customerRouter.get('/', isCustomerAuthenticated, customer.find);
 
+customerRouter.get('/repairs', isCustomerAuthenticated, customer.getAllRepairs);
+
 module.exports = customerRouter;
