@@ -26,7 +26,8 @@ module.exports = {
       if (existingPart === null) {
         res.sendStatus(404);
       } else {
-        res.json({ data: existingPart });
+        const partStats = await calculateStatsById(req.params.id);
+        res.json({ data: existingPart, stats: partStats });
       }
     } catch (error) {
       handleError(error, res);
@@ -42,7 +43,7 @@ module.exports = {
         where: { ShopId: shopId },
       });
       if (existingParts === null) {
-        res.sendStatus(404);
+        res.json({ data: [] });
       } else {
         res.json({ data: existingParts });
       }
@@ -61,7 +62,8 @@ module.exports = {
       if (existingParts === null) {
         res.sendStatus({ date: [] });
       } else {
-        res.json({ data: existingParts });
+        const batchStats = await calculateStatsByName(partName);
+        res.json({ data: existingParts, stats: batchStats });
       }
     } catch (error) {
       handleError(error, res);
@@ -106,28 +108,34 @@ module.exports = {
       handleError(error, res);
     }
   },
+  getStatsById: async function (req, res) {
+    try {
+      // first lets get the total installs for this part
+      const {
+        totalInstalls,
+        totalFailuresInLastYear,
+        percentFailureLastYear,
+      } = await calculateStatsById(req.params.id);
+      res.json({
+        data: {
+          totalInstalls: totalInstalls,
+          failures: totalFailuresInLastYear,
+          percentFailure: percentFailureLastYear,
+        },
+      });
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
   getStats: async function (req, res) {
     try {
       // first lets get the total installs for this part
-      const totalInstalls = await RepairParts.sum('quantity', {
-        where: { PartId: req.params.id },
-      });
-      let dateRange = new Date().getTime() - 31556952000;
-      const totalInstallsWithInYear = await RepairParts.sum('quantity', {
-        where: { PartId: req.params.id, createdAt: { [Op.gt]: dateRange } },
-      });
-
-      const totalFailuresInLastYear = await RepairPartReturn.sum(
-        'RepairPartReturn.quantity',
-        {
-          include: [{ model: RepairParts, where: { PartId: req.params.id } }],
-          where: { comeBackDate: { [Op.gt]: dateRange } },
-        }
-      );
-      const percentFailureLastYear =
-        totalInstallsWithInYear == 0
-          ? 0
-          : (totalFailuresInLastYear / totalInstallsWithInYear) * 100;
+      // lets get all the Ids for a given part name
+      const {
+        totalInstalls,
+        totalFailuresInLastYear,
+        percentFailureLastYear,
+      } = await calculateStatsByName(req.body.partName);
       res.json({
         data: {
           totalInstalls: totalInstalls,
@@ -140,6 +148,61 @@ module.exports = {
     }
   },
 };
+
+async function calculateStatsById(partId) {
+  const totalInstalls = await RepairParts.sum('quantity', {
+    where: { PartId: partId },
+  });
+  let dateRange = new Date().getTime() - 31556952000;
+  const totalInstallsWithInYear = await RepairParts.sum('quantity', {
+    where: { PartId: partId, createdAt: { [Op.gt]: dateRange } },
+  });
+
+  const totalFailuresInLastYear = await RepairPartReturn.sum(
+    'RepairPartReturn.quantity',
+    {
+      include: [{ model: RepairParts, where: { PartId: partId } }],
+      where: { comeBackDate: { [Op.gt]: dateRange } },
+    }
+  );
+  const percentFailureLastYear =
+    totalInstallsWithInYear == 0
+      ? 0
+      : (totalFailuresInLastYear / totalInstallsWithInYear) * 100;
+  return { totalInstalls, totalFailuresInLastYear, percentFailureLastYear };
+}
+
+async function calculateStatsByName(partName) {
+  const partIds = await Part.findAll({
+    attributes: ['id'],
+    where: { name: partName },
+  }).map((pid) => pid.id);
+  const totalInstalls = await RepairParts.sum('quantity', {
+    where: { PartId: { [Op.in]: partIds } },
+  });
+  let dateRange = new Date().getTime() - 31556952000;
+  const totalInstallsWithInYear = await RepairParts.sum('quantity', {
+    where: {
+      PartId: { [Op.in]: partIds },
+      createdAt: { [Op.gt]: dateRange },
+    },
+  });
+
+  const totalFailuresInLastYear = await RepairPartReturn.sum(
+    'RepairPartReturn.quantity',
+    {
+      include: [
+        { model: RepairParts, where: { PartId: { [Op.in]: partIds } } },
+      ],
+      where: { comeBackDate: { [Op.gt]: dateRange } },
+    }
+  );
+  const percentFailureLastYear =
+    totalInstallsWithInYear == 0
+      ? 0
+      : (totalFailuresInLastYear / totalInstallsWithInYear) * 100;
+  return { totalInstalls, totalFailuresInLastYear, percentFailureLastYear };
+}
 
 function handleError(error, res) {
   console.log(error);
