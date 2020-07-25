@@ -30,6 +30,12 @@ repairsRouter.post(
 repairsRouter.patch('/:repairId/updateCost', isValidRepair, repairs.updateCost);
 
 repairsRouter.patch(
+  '/:repairId/updateTotalPrice',
+  isValidRepair,
+  repairs.updateTotalCost
+);
+
+repairsRouter.patch(
   '/:repairId/updateNotes',
   isValidRepair,
   repairs.updateNotes

@@ -123,13 +123,28 @@ module.exports = {
   updateCost: async function (req, res) {
     try {
       const shopId = req.user.id;
-      const updatedLaborCost = req.body.laborCost;
+      // const updatedLaborCost = req.body.laborCost;
       const customerRepair = req.params.repair;
       customerRepair.laborCost = parseFloat(req.body.laborCost);
-      customerRepair.totalPrice = parseFloat(customerRepair.totalPrice);
-      const difference = customerRepair.laborCost - customerRepair.totalPrice;
-      customerRepair.totalPrice = customerRepair.totalPrice + difference;
-      await customerRepair.save({ fields: ['laborCost', 'totalPrice'] });
+      // customerRepair.totalPrice = parseFloat(customerRepair.totalPrice);
+      // const difference = customerRepair.laborCost - customerRepair.totalPrice;
+      // customerRepair.totalPrice = customerRepair.totalPrice + difference;
+      await customerRepair.save({ fields: ['laborCost'] });
+      await customerRepair.reload();
+      res.json({ data: customerRepair });
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+  updateTotalCost: async function (req, res) {
+    try {
+      const shopId = req.user.id;
+      const customerRepair = req.params.repair;
+      customerRepair.totalPrice = parseFloat(req.body.totalPrice);
+      // customerRepair.totalPrice = parseFloat(customerRepair.totalPrice);
+      // const difference = customerRepair.laborCost - customerRepair.totalPrice;
+      // customerRepair.totalPrice = customerRepair.totalPrice + difference;
+      await customerRepair.save({ fields: ['totalPrice'] });
       await customerRepair.reload();
       res.json({ data: customerRepair });
     } catch (error) {
@@ -210,9 +225,9 @@ module.exports = {
           attributes: ['price'],
         });
         // gotta add this to totalprice of the repair
-        await repair.decrement(['totalPrice'], {
-          by: partToBeRemoved.dataValues.price,
-        });
+        // await repair.decrement(['totalPrice'], {
+        //   by: partToBeRemoved.dataValues.price,
+        // });
         await repairPart.destroy();
         res.sendStatus(200);
       }
@@ -287,9 +302,9 @@ async function incrementPartQuantityForRepair(repairPart, req, res) {
 async function incrementRepairCostForAddedPart(partId, repair) {
   const partPrice = await Part.findByPk(partId, { attributes: ['price'] });
   // gotta add this to totalprice of the repair
-  await repair.increment(['totalPrice'], {
-    by: partPrice.dataValues.price,
-  });
+  // await repair.increment(['totalPrice'], {
+  //   by: partPrice.dataValues.price,
+  // });
 }
 
 function getRepairCompletedBody(customerRepair, shop) {
