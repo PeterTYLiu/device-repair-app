@@ -75,6 +75,29 @@ export default function Repair({ match }) {
 
     console.log(newCostOfParts);
     setCostOfParts(Number(newCostOfParts));
+
+    // Set the total cost of the repair
+    (async () => {
+      let newTotalPrice = (
+        newCostOfParts +
+        Number(repair.laborCost) +
+        Number(repair.Warranty ? repair.Warranty.price : 0)
+      ).toFixed(2);
+      let setTotalCostResponse = await fetch(
+        `/api/repairs/${match.params.id}/updateTotalPrice`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            totalPrice: newTotalPrice,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (setTotalCostResponse.status === 200)
+        console.log("Total price updated to " + newTotalPrice);
+    })();
   }, [repair]);
 
   const setRepairStatus = async (status) => {
