@@ -1,5 +1,5 @@
 const express = require('express');
-const { Customer } = require('../models');
+const { Customer, Shop, Warranty } = require('../models');
 const { Repair, Part, Device } = require('../models');
 const sendEmail = require('../utils/emailUtil');
 
@@ -42,7 +42,13 @@ module.exports = {
       const repairId = req.params.repairId;
       const customerRepair = await Repair.findOne({
         where: { id: repairId, repairCustomerId: customerId },
-        include: [{ model: Customer }, { model: Part }, { model: Device }],
+        include: [
+          { model: Customer },
+          { model: Part },
+          { model: Device },
+          { model: Warranty },
+          { model: Shop },
+        ],
       });
       if (customerRepair === null) {
         res.sendStatus(404);
