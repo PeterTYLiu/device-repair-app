@@ -19,6 +19,10 @@ module.exports = {
         ...req.body,
         repairShopId: req.user.id,
       });
+      await newRepair.reload({
+        include: [{ model: Device }, { model: Customer }, { model: Part }],
+      });
+      await sendRepairStartedUpdate(newRepair, req.user);
       res.status(201).json(newRepair);
     } catch (error) {
       handleError(error, res);
@@ -262,6 +266,14 @@ async function sendRepairCompletionUpdate(customerRepair, shop) {
   });
 }
 
+async function sendRepairStartedUpdate(customerRepair, shop) {
+  sendEmail({
+    to: customerRepair.Customer.email,
+    subject: `Repiar for your device ${customerRepair.Device.model} is in progress`,
+    body: getRepairStartedBody(customerRepair, shop),
+  });
+}
+
 async function incrementPartQuantityForRepair(repairPart, req, res) {
   const { repairId, partId, quantity = 1 } = req.params;
   await repairPart.increment(['quantity'], {
@@ -289,6 +301,15 @@ function getRepairCompletedBody(customerRepair, shop) {
   return `<html>
         <p>Dear ${customerRepair.Customer.name},</p>
         <p>Your device  <b>${customerRepair.Device.model}</b> is ready for pickup at <b>${shop.name}</b></p>              
+        <p>Team REPARRiT</p>
+        </html>`;
+}
+
+function getRepairStartedBody(customerRepair, shop) {
+  return `<html>
+        <p>Dear ${customerRepair.Customer.name},</p>
+        <p><b>${shop.name}</b> has started working on reparing your device <b>${customerRepair.Device.model}</b>.</p> 
+        <p>We will inform you when it's ready for pick up.</p>              
         <p>Team REPARRiT</p>
         </html>`;
 }
