@@ -269,7 +269,7 @@ async function sendRepairCompletionUpdate(customerRepair, shop) {
 async function sendRepairStartedUpdate(customerRepair, shop) {
   sendEmail({
     to: customerRepair.Customer.email,
-    subject: `Repiar for your device ${customerRepair.Device.model} is in progress`,
+    subject: `Repair for your device ${customerRepair.Device.model} is in progress`,
     body: getRepairStartedBody(customerRepair, shop),
   });
 }
@@ -309,6 +309,7 @@ function getRepairStartedBody(customerRepair, shop) {
   return `<html>
         <p>Dear ${customerRepair.Customer.name},</p>
         <p><b>${shop.name}</b> has started working on reparing your device <b>${customerRepair.Device.model}</b>.</p> 
+        <p>You can track the repair progress by logging into your <a href='http://localhost:3000/customerlogin'>REPARRiT</a> account</p>
         <p>We will inform you when it's ready for pick up.</p>              
         <p>Team REPARRiT</p>
         </html>`;

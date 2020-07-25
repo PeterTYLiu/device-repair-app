@@ -36,6 +36,24 @@ module.exports = {
     }
   },
 
+  getRepair: async function (req, res) {
+    try {
+      const customerId = req.user.id;
+      const repairId = req.params.repairId;
+      const customerRepair = await Repair.findOne({
+        where: { id: repairId, repairCustomerId: customerId },
+        include: [{ model: Customer }, { model: Part }, { model: Device }],
+      });
+      if (customerRepair === null) {
+        res.sendStatus(404);
+      } else {
+        res.json({ data: customerRepair });
+      }
+    } catch (error) {
+      handleError(error, res);
+    }
+  },
+
   // get shop details
   find: async function (req, res) {
     try {
