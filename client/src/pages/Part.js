@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 export default function Part({ match }) {
   const [batches, setBatches] = useState([]);
-  const [part, setPart] = useState({});
+  const [part, setPart] = useState({ name: "", supplierName: "", price: 0 });
   const [stats, setStats] = useState({
     totalInstalls: 0,
     totalFailuresInLastYear: 0,
