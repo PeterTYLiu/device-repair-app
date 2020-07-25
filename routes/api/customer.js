@@ -17,4 +17,10 @@ customerRouter.get('/', isCustomerAuthenticated, customer.find);
 
 customerRouter.get('/repairs', isCustomerAuthenticated, customer.getAllRepairs);
 
+customerRouter.get(
+  '/repairs/:repairId',
+  isCustomerAuthenticated,
+  customer.getRepair
+);
+
 module.exports = customerRouter;
