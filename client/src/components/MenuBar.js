@@ -47,10 +47,34 @@ export default function MenuBar() {
             className="nav-menu-mobile"
             style={{ flexGrow: 5, textAlign: "right" }}
           >
-            <a>Menu</a>
+            <a
+              onClick={() => {
+                document
+                  .getElementById("nav-mobile-options")
+                  .classList.toggle("hidden");
+              }}
+            >
+              Menu
+            </a>
           </div>
         </div>
       </nav>
+
+      <div id="nav-mobile-options" className="hidden">
+        <Link to="/customers">Customers</Link>
+        <br />
+        <Link to="/parts">Parts</Link>
+        <hr style={{ margin: "1.5rem", borderTop: "1px solid #ffffff59" }}></hr>
+        <a
+          href="#"
+          onClick={async () => {
+            let response = await fetch("api/logout");
+            window.location = "/login";
+          }}
+        >
+          Log out
+        </a>
+      </div>
     </React.Fragment>
   );
 }

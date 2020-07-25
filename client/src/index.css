@@ -141,15 +141,19 @@ nav {
 }
 
 .nav-menu-desktop > a,
-.nav-menu-mobile > a {
+.nav-menu-mobile > a,
+#nav-mobile-options > a {
   line-height: 30px;
   vertical-align: bottom;
   color: rgb(0, 99, 156);
   text-decoration: underline #ffffff00;
   transition: all 0.3s;
+  user-select: none;
+  cursor: pointer;
 }
 
-.nav-menu-desktop > a:hover {
+.nav-menu-desktop > a:hover,
+.nav-menu-mobile > a:hover {
   text-decoration: underline rgb(0, 99, 156);
 }
 
@@ -162,6 +166,21 @@ nav {
   font-weight: bold;
 }
 
+#nav-mobile-options {
+  position: fixed;
+  padding: 4rem 0 3rem;
+  text-align: center;
+  line-height: 3rem;
+  background-color: rgb(173, 217, 255);
+  width: 100%;
+  z-index: 9995;
+  transition: all 0.3s ease-in-out;
+}
+
+#nav-mobile-options.hidden {
+  transform: translateY(-400px);
+}
+
 @media only screen and (max-width: 650px) {
   .nav-menu-desktop {
     display: none;
@@ -170,6 +189,9 @@ nav {
 
 @media only screen and (min-width: 651px) {
   .nav-menu-mobile {
+    display: none;
+  }
+  #nav-mobile-options {
     display: none;
   }
 }
