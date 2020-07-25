@@ -44,7 +44,8 @@ h1 {
   pointer-events: none;
 }
 
-input:disabled {
+input:disabled,
+textarea:disabled {
   background-color: #eee;
   color: #ccc;
 }
@@ -161,13 +162,13 @@ nav {
   font-weight: bold;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 650px) {
   .nav-menu-desktop {
     display: none;
   }
 }
 
-@media only screen and (min-width: 801px) {
+@media only screen and (min-width: 651px) {
   .nav-menu-mobile {
     display: none;
   }

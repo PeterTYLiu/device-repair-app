@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
-import MenuBar from "../components/MenuBar";
+import CustomerMenuBar from "../components/CustomerMenuBar";
 import ButtonHeader from "../components/ButtonHeader";
 
-export default function Customer({ match }) {
-  const [customerName, setCustomerName] = useState("");
-  const [repairs, setRepairs] = useState([]);
+export default function Customer() {
+  const [repairs, setRepairs] = useState([
+    { Customer: { name: "", id: "" }, Device: { model: "" } },
+  ]);
 
   // Populate all repairs from this customer in my shop
   useEffect(() => {
     (async () => {
-      let repairsResponse = await fetch(
-        `/api/repairs/customer/${match.params.id}`
-      );
-      if (repairsResponse.status === 401) return (window.location = "/login");
+      let repairsResponse = await fetch(`/api/customers/repairs`);
+      if (repairsResponse.status === 401)
+        return (window.location = "/customerlogin");
       if (repairsResponse.status === 200) {
         let repairsBody = await repairsResponse.json();
+        console.log(repairsBody.data);
         setRepairs(repairsBody.data);
-        setCustomerName(repairsBody.data[0].Customer.name);
       }
     })();
   }, []);
@@ -31,7 +31,7 @@ export default function Customer({ match }) {
         <div
           className="repair-row"
           key={id}
-          onClick={() => (window.location.href = `/repair/${id}`)}
+          onClick={() => (window.location.href = `/myrepair/${id}`)}
         >
           <h5>
             {Device.model}
@@ -48,14 +48,17 @@ export default function Customer({ match }) {
 
   return (
     <React.Fragment>
-      <MenuBar />
+      <CustomerMenuBar />
       <div className="container">
-        <ButtonHeader
-          title={customerName}
-          buttonLink="/newrepair/customer"
-          buttonText="New repair"
-          subtitle={"Customer #" + match.params.id}
-        />
+        <div style={{ marginBottom: "8rem" }}>
+          <div>
+            <h4 style={{ display: "inline-block", marginBottom: 0 }}>
+              {repairs[0].Customer.name}
+            </h4>
+          </div>
+          {"Customer #" + repairs[0].Customer.id}
+        </div>
+
         <h5>Repair history</h5>
         <div>{sortedRepairsTable}</div>
       </div>
