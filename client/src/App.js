@@ -4,7 +4,6 @@ import SelectDevice from "./pages/SelectDevice";
 import SelectCustomer from "./pages/SelectCustomer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import CustomerLogin from "./pages/CustomerLogin";
 import Signup from "./pages/Signup";
 import Repair from "./pages/Repair";
 import Customer from "./pages/Customer";
@@ -16,6 +15,10 @@ import SelectPart from "./pages/SelectPart";
 import AddWarranty from "./pages/AddWarranty";
 import AddPart from "./pages/AddPart";
 import ClaimWarranty from "./pages/ClaimWarranty";
+// For the customer portal
+import CustomerLogin from "./pages/CustomerLogin";
+import MyRepairs from "./pages/MyRepairs";
+import MyRepair from "./pages/MyRepair";
 
 function App() {
   return (
@@ -41,6 +44,8 @@ function App() {
         <Route exact path="/customers" component={Customers} />
         <Route exact path="/part/:id" component={Part} />
         <Route exact path="/parts" component={Parts} />
+        <Route exact path="/myrepairs" component={MyRepairs} />
+        <Route exact path="/myrepair/:id" component={MyRepair} />
       </Switch>
     </Router>
   );

@@ -8,18 +8,27 @@ export default function ButtonHeader({
   subtitle,
 }) {
   return (
-    <div style={{ marginBottom: "8rem" }}>
-      <div>
-        <h4 style={{ display: "inline-block", marginBottom: 0 }}>{title}</h4>
+    <React.Fragment>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1rem 3rem",
+        }}
+      >
+        <div style={{ display: "inline-block", flexGrow: "25" }}>
+          <h4>{title}</h4>
+        </div>
+
         <Link
-          style={{ float: "right" }}
           to={buttonLink}
           className="button button-primary"
+          style={{ flexGrow: "1" }}
         >
           {buttonText}
         </Link>
       </div>
-      {subtitle ? <h6>{subtitle}</h6> : null}
-    </div>
+      <h6 style={{ marginBottom: "7rem" }}>{subtitle ? subtitle : ""}</h6>
+    </React.Fragment>
   );
 }

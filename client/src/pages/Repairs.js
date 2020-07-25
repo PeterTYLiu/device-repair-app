@@ -17,6 +17,7 @@ export default function Repairs() {
     },
   ];
 
+  const [shopName, setShopName] = useState("");
   const [sortedRepairs, setSortedRepairs] = useState(defaultRepair);
   const [filters, setFilters] = useState({
     sortBy: "",
@@ -34,6 +35,19 @@ export default function Repairs() {
         let data = await responseBody.data;
         setSortedRepairs(await data);
         console.log(await data);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      let myShopRepairs = await fetch("/api/shops");
+      if (myShopRepairs.status === 401) return (window.location = "/login");
+      if (myShopRepairs.status === 200) {
+        let responseBody = await myShopRepairs.json();
+        let data = await responseBody.data;
+        // setSortedRepairs(await data);
+        setShopName(data.name);
       }
     })();
   }, []);
@@ -83,7 +97,7 @@ export default function Repairs() {
       <MenuBar />
       <div className="container">
         <ButtonHeader
-          title="Repairs"
+          title={shopName + " repairs"}
           buttonLink="/newrepair/customer"
           buttonText="New repair"
         />
@@ -113,9 +127,8 @@ export default function Repairs() {
               <option value="" disabled hidden>
                 ---
               </option>
-              <option value="dateStarted">Date started</option>
-              <option value="customer">Customer</option>
-              <option value="device">Device</option>
+              <option value="stratDate">Date started</option>
+              <option value="DeviceId">Device</option>
               <option value="id">Repair ID #</option>
               <option value="status">Repair status</option>
             </select>

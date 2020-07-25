@@ -1,59 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MenuBar from "../components/MenuBar";
 import { Link } from "react-router-dom";
 
 export default function Part({ match }) {
-  const unsortedBatches = [
-    {
-      id: 157,
-      name: "iPhone Xs display and digitizer (LCD)",
-      manufacturer: "Shenzhen Wholesale Components ltd.",
-      device: "iPhone Xs",
-      deviceId: 48,
-      dateAdded: "2020-05-29T18:25:43-05:00",
-      cost: 32.15,
-      failureRate: 8.5,
-    },
-    {
-      id: 98,
-      name: "iPhone Xs display and digitizer (LCD)",
-      device: "iPhone Xs",
-      deviceId: 48,
-      dateAdded: "2019-04-12T18:25:43-05:00",
-      manufacturer: "Shenzhen Wholesale Components ltd.",
-      cost: 33.16,
-      failureRate: 11.1,
-    },
-    {
-      id: 34,
-      name: "iPhone Xs display and digitizer (LCD)",
-      device: "iPhone Xs",
-      deviceId: 48,
-      dateAdded: "2016-11-25T18:25:43-05:00",
-      manufacturer: "Shenzhen Wholesale Components ltd.",
-      cost: 32.48,
-      failureRate: 14.2,
-    },
-  ];
+  const [batches, setBatches] = useState([]);
+  const [part, setPart] = useState({});
+  const [stats, setStats] = useState({
+    totalInstalls: 0,
+    totalFailuresInLastYear: 0,
+    percentFailureLastYear: 0,
+  });
 
-  let batchesTable = unsortedBatches
-    .sort((a, b) => {
-      if (a.dateAdded > b.dateAdded) return -1;
-      return 1;
-    })
-    .map(({ cost, dateAdded, failureRate, id }) => {
+  // Get the part on page load
+  useEffect(() => {
+    (async () => {
+      let partResponse = await fetch(`/api/parts/${match.params.id}`);
+      if (partResponse.status === 401) return (window.location = "/login");
+      if (partResponse.status === 200) {
+        let partBody = await partResponse.json();
+        setPart(partBody.data);
+        console.log(partBody);
+      }
+    })();
+  }, []);
+
+  // Get the batches on part load
+  useEffect(() => {
+    (async () => {
+      let batchesResponse = await fetch(`/api/parts/batches`, {
+        method: "POST",
+        body: JSON.stringify({
+          partName: part.name,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (batchesResponse.status === 401) return (window.location = "/login");
+      if (batchesResponse.status === 200) {
+        let batchesBody = await batchesResponse.json();
+        setBatches(batchesBody.data);
+        setStats(batchesBody.stats);
+        console.log(batchesBody);
+      }
+    })();
+  }, [part]);
+
+  let batchesTable = batches
+    // .sort((a, b) => {
+    //   if (Date.parse(a.createdAt) > Date.parse(b.createdAt)) return -1;
+    //   return 1;
+    // })
+    .map(({ price, createdAt, id }) => {
       return (
         <div className="table-row" key={id}>
           <h5>
-            {dateAdded.substr(0, 10)}
+            {createdAt.substr(0, 10)}
             <span style={{ color: "#999", float: "right" }}>#{id}</span>
           </h5>
-          <p style={{ marginBottom: 0 }}>
-            ${cost} ea.
-            <span style={{ float: "right" }}>
-              {failureRate}% fail within one year
-            </span>
-          </p>
+          <p style={{ marginBottom: 0 }}>${price} ea.</p>
         </div>
       );
     });
@@ -63,24 +68,33 @@ export default function Part({ match }) {
       <MenuBar />
       <div className="container">
         <header>
-          <h4>{unsortedBatches[0].name}</h4>
-          <h6>{unsortedBatches[0].manufacturer}</h6>
-          <h6>${unsortedBatches[0].cost} each (latest batch)</h6>
+          <h4>{part.name}</h4>
+          <h6>{part.supplierName}</h6>
+          <h6>${part.price} each (latest batch)</h6>
         </header>
         <hr></hr>
         <div className="row">
           <div className="eight columns">
             <div id="statistics">
               <div>
-                <h4>78</h4>
+                <h4>{stats.totalInstalls ? stats.totalInstalls : 0}</h4>
                 <h5>Uses</h5>
               </div>
               <div>
-                <h4>29</h4>
-                <h5>Failures</h5>
+                <h4>
+                  {stats.totalFailuresInLastYear
+                    ? stats.totalFailuresInLastYear
+                    : 0}
+                </h4>
+                <h5>Failures in the past year</h5>
               </div>
               <div>
-                <h4>17.3%</h4>
+                <h4>
+                  {stats.percentFailureLastYear
+                    ? stats.percentFailureLastYear.toFixed(1)
+                    : 0}
+                  %
+                </h4>
                 <h5>Fail within one year</h5>
               </div>
             </div>
@@ -91,15 +105,32 @@ export default function Part({ match }) {
             <div>
               <h5>
                 6 months
-                <span className="float-right">$3.25</span>
+                <span className="float-right">
+                  $
+                  {(
+                    (stats.percentFailureLastYear * part.price * 0.7) /
+                    100
+                  ).toFixed(2)}
+                </span>
               </h5>
               <h5>
                 12 months
-                <span className="float-right">$5.57</span>
+                <span className="float-right">
+                  $
+                  {((stats.percentFailureLastYear * part.price) / 100).toFixed(
+                    2
+                  )}
+                </span>
               </h5>
               <h5>
                 18 months
-                <span className="float-right">$9.21</span>
+                <span className="float-right">
+                  $
+                  {(
+                    (stats.percentFailureLastYear * part.price * 1.5) /
+                    100
+                  ).toFixed(2)}
+                </span>
               </h5>
               <a
                 href="https://www.xlstat.com/en/solutions/features/ordinary-least-squares-regression-ols"

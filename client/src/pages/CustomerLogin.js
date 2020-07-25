@@ -19,8 +19,7 @@ export default function CustomerLogin() {
     });
 
     if (response.status === 200) {
-      let responseBody = await response.json();
-      return (window.location = `/customers/${responseBody.data.id}`);
+      return (window.location = `/myrepairs`);
     }
     setErrorMessage("Incorrect email or password");
   };

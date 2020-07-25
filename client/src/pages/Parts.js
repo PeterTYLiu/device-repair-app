@@ -1,66 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuBar from "../components/MenuBar";
 import ButtonHeader from "../components/ButtonHeader";
 
 export default function Parts() {
-  const unsortedParts = [
-    {
-      id: 1,
-      name: "iPhone Xs LCD display",
-      supplier: "Shenzhen Screen Inc.",
-      cost: 41.28,
-      device: "iPhone Xs",
-      deviceId: 58,
-      latestBatch: "2020-05-15T18:25:43-05:00",
-      uses: 42,
-      failedWithinAYear: 15,
-    },
-    {
-      id: 2,
-      name: "iPhone Xs back glass",
-      supplier: "Pegatron Wholesale",
-      cost: 7.98,
-      device: "iPhone Xs",
-      deviceId: 58,
-      latestBatch: "2020-03-29T18:25:43-05:00",
-      uses: 62,
-      failedWithinAYear: 15,
-    },
-    {
-      id: 3,
-      name: "iPhone Xs battery",
-      supplier: "GooParts Components Ltd.",
-      cost: 65.36,
-      device: "iPhone Xs",
-      deviceId: 58,
-      latestBatch: "2020-03-10T18:25:43-05:00",
-      uses: 29,
-      failedWithinAYear: 15,
-    },
-    {
-      id: 4,
-      name: "Moto G7 battery",
-      supplier: "Motorola (OEM)",
-      device: "Moto G7",
-      deviceId: 235,
-      cost: 22.05,
-      latestBatch: "2020-01-09T18:25:43-05:00",
-      uses: 38,
-      failedWithinAYear: 15,
-    },
-  ];
-
-  const [sortedParts, setsortedParts] = useState(unsortedParts);
+  const [sortedParts, setSortedParts] = useState([]);
   const [filters, setFilters] = useState({
-    sortBy: "latestBatch",
+    sortBy: "createdAt",
   });
+
+  useEffect(() => {
+    (async () => {
+      let partsResponse = await fetch(`/api/parts`);
+      if (partsResponse.status === 401) return (window.location = "/login");
+      if (partsResponse.status === 200) {
+        let partsBody = await partsResponse.json();
+        console.log(partsBody.data);
+        // Create a new array with the data
+        let partsBodyData = [...partsBody.data];
+        // Create an empty array to store the parts
+        let sortedPartsBodyData = [];
+        // Sort the parts by most recent
+        partsBodyData.sort((a, b) => {
+          if (Date.parse(a.createdAt) > Date.parse(b.createdAt)) return -1;
+          return 1;
+        });
+        // Push the first batch into the target array
+        sortedPartsBodyData.push(partsBodyData[0]);
+        // For every batch, see if name exists in target array. If not, push it to the array.
+        partsBodyData.forEach((batch) => {
+          for (let i = 0; i < sortedPartsBodyData.length; i++) {
+            if (sortedPartsBodyData[i].name === batch.name) return false;
+          }
+          sortedPartsBodyData.push(batch);
+        });
+        // See results
+        setSortedParts(sortedPartsBodyData);
+      }
+    })();
+  }, []);
 
   let sortedPartsTable = sortedParts
     .sort((a, b) => {
       if (a[filters.sortBy] > b[filters.sortBy]) return -1;
       return 1;
     })
-    .map(({ name, id, latestBatch, supplier, uses, cost }) => {
+    .map(({ name, id, createdAt, supplierName, price }) => {
       return (
         <div
           className="repair-row"
@@ -72,10 +56,9 @@ export default function Parts() {
             <span style={{ color: "#999", float: "right" }}>#{id}</span>
           </h5>
           <div className="partDetails">
-            <span>{supplier}</span>
-            <span>${cost}</span>
-            <span>{uses} uses</span>
-            <span>Last ordered: {latestBatch.substr(0, 10)}</span>
+            <span>{supplierName}</span>
+            <span>${price}</span>
+            <span>Last ordered: {createdAt.substr(0, 10)}</span>
           </div>
         </div>
       );
@@ -121,10 +104,8 @@ export default function Parts() {
               <option value="" disabled hidden>
                 ---
               </option>
-              <option value="latestBatch">Last ordered</option>
-              <option value="cost">Cost</option>
-              <option value="uses">Uses</option>
-              <option value="id">ID</option>
+              <option value="createdAt">Last ordered</option>
+              <option value="name">Name</option>
             </select>
           </div>
         </div>
