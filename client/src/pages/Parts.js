@@ -3,7 +3,9 @@ import MenuBar from "../components/MenuBar";
 import ButtonHeader from "../components/ButtonHeader";
 
 export default function Parts() {
-  const [sortedParts, setSortedParts] = useState([]);
+  const [sortedParts, setSortedParts] = useState([
+    { id: "", name: "", createdAt: "", price: "", supplierName: "" },
+  ]);
   const [filters, setFilters] = useState({
     sortBy: "createdAt",
   });
@@ -25,7 +27,7 @@ export default function Parts() {
           return 1;
         });
         // Push the first batch into the target array
-        sortedPartsBodyData.push(partsBodyData[0]);
+        if (partsBodyData.length) sortedPartsBodyData.push(partsBodyData[0]);
         // For every batch, see if name exists in target array. If not, push it to the array.
         partsBodyData.forEach((batch) => {
           for (let i = 0; i < sortedPartsBodyData.length; i++) {
@@ -34,6 +36,7 @@ export default function Parts() {
           sortedPartsBodyData.push(batch);
         });
         // See results
+        console.log(sortedPartsBodyData);
         setSortedParts(sortedPartsBodyData);
       }
     })();
@@ -65,7 +68,7 @@ export default function Parts() {
     });
 
   const emptyPartsTable = (
-    <div className="repair-row empty-row">No parts found</div>
+    <div className="repair-row empty-row">No repairs found</div>
   );
 
   return (
