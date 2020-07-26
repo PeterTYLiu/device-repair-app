@@ -1,6 +1,6 @@
 # REPARRiT
 
-![REPARRiT](./assets/logo.PNG)
+![REPARRiT](./assets/logo.png)
 
 REPARRiT is a platform that empwoers any kind of repair-shop owner to start tracking the reliability of the parts that they put in the
 repair jobs and thereby offer an optimum warranty price that is profitable and at the time a fair price for their customer.
